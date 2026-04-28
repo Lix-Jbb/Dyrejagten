@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
-import { useRouter } from "expo-router";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
@@ -67,7 +66,6 @@ function createUserId() {
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [userId, setUserId] = useState("");
@@ -183,13 +181,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         await refreshData();
         setCurrentCapture(null);
         setCurrentAnalysis(null);
-        router.replace("/(tabs)" as never);
         return finding;
       } finally {
         setBusy(false);
       }
     },
-    [currentAnalysis, currentCapture, profile?.allowLocation, refreshData, router, userId]
+    [currentAnalysis, currentCapture, profile?.allowLocation, refreshData, userId]
   );
 
   const removeFinding = useCallback(

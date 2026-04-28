@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack.Screen name="analyze" />
         <Stack.Screen name="result" />
         <Stack.Screen name="save-finding" />
+        <Stack.Screen name="compare" />
         <Stack.Screen name="species/[slug]" />
         <Stack.Screen name="badges" />
         <Stack.Screen name="map" />

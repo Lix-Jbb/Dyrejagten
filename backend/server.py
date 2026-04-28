@@ -11,6 +11,7 @@ from constants import CATEGORY_OPTIONS, RARE_STATUSES
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorClient
+from reference_images import fetch_reference_image_data
 from scoring import build_badges, build_dashboard, calculate_award
 from schemas import (
     AnalysisResponse,
@@ -126,6 +127,14 @@ async def root() -> Dict[str, object]:
 @api_router.get("/categories")
 async def get_categories() -> Dict[str, object]:
     return {"categories": CATEGORY_OPTIONS}
+
+
+@api_router.get("/reference-image")
+async def get_reference_image(latinName: str) -> Dict[str, Optional[str]]:
+    return {
+        "latinName": latinName,
+        "imageData": fetch_reference_image_data(latinName),
+    }
 
 
 @api_router.post("/profile/bootstrap", response_model=UserProfile)

@@ -57,7 +57,7 @@ export function FindingCard({ finding, onPress }: { finding: Finding; onPress?: 
       <View style={styles.findingBody}>
         <View style={styles.rowBetween}>
           <Text style={styles.findingName}>{finding.danishName}</Text>
-          <Text style={styles.confidence}>{Math.round(finding.confidenceScore * 100)}%</Text>
+          <Text style={styles.confidence}>Fundet af mig</Text>
         </View>
         <Text style={styles.findingMeta}>{finding.latinName}</Text>
         <Text style={styles.findingMeta}>
@@ -128,34 +128,37 @@ export function NoteInput(props: React.ComponentProps<typeof TextInput>) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.card,
-    borderRadius: 26,
+    borderRadius: 30,
     padding: 18,
-    borderWidth: 1,
-    borderColor: theme.border,
+    borderWidth: 3,
+    borderColor: theme.dark,
     gap: 14,
-    shadowColor: "#14331f",
-    shadowOpacity: 0.07,
+    shadowColor: "#10253d",
+    shadowOpacity: 0.12,
     shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 22,
-    elevation: 4,
+    shadowRadius: 18,
+    elevation: 6,
   },
   statCard: {
     flex: 1,
     minHeight: 104,
-    backgroundColor: "#eef5ea",
-    borderRadius: 22,
+    backgroundColor: "#fff5d7",
+    borderRadius: 26,
     padding: 16,
     justifyContent: "space-between",
+    borderWidth: 2,
+    borderColor: theme.dark,
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontSize: 30,
+    fontWeight: "900",
     color: theme.dark,
   },
   statLabel: {
-    color: theme.textMuted,
-    fontSize: 13,
+    color: theme.dark,
+    fontSize: 14,
     lineHeight: 18,
+    fontWeight: "700",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -163,8 +166,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 24,
+    fontWeight: "900",
     color: theme.dark,
   },
   progressBlock: {
@@ -201,10 +204,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 14,
     padding: 14,
-    borderRadius: 22,
+    borderRadius: 28,
     backgroundColor: theme.card,
-    borderWidth: 1,
-    borderColor: theme.border,
+    borderWidth: 3,
+    borderColor: theme.dark,
   },
   findingImage: {
     width: 96,
@@ -223,12 +226,13 @@ const styles = StyleSheet.create({
   },
   findingMeta: {
     fontSize: 13,
-    color: theme.textMuted,
+    color: theme.dark,
+    fontWeight: "700",
   },
   confidence: {
     fontSize: 14,
-    fontWeight: "700",
-    color: theme.primary,
+    fontWeight: "900",
+    color: "#ff8c42",
   },
   findingDescription: {
     fontSize: 14,
@@ -239,9 +243,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 14,
     alignItems: "flex-start",
-    backgroundColor: "#eef4ea",
+    backgroundColor: "#fff1f0",
     padding: 16,
-    borderRadius: 22,
+    borderRadius: 26,
+    borderWidth: 2,
+    borderColor: theme.dark,
   },
   badgeLocked: {
     opacity: 0.72,
@@ -250,7 +256,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: theme.primary,
+    backgroundColor: "#ff8c42",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -258,32 +264,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: "#edf4eb",
-    borderWidth: 1,
-    borderColor: theme.border,
+    backgroundColor: "#ffffff",
+    borderWidth: 2,
+    borderColor: theme.dark,
   },
   pillActive: {
-    backgroundColor: theme.primary,
-    borderColor: theme.primary,
+    backgroundColor: "#19c3b4",
+    borderColor: theme.dark,
   },
   pillText: {
     color: theme.dark,
-    fontWeight: "700",
-    fontSize: 13,
+    fontWeight: "900",
+    fontSize: 14,
   },
   pillTextActive: {
-    color: "#f9fcf7",
+    color: "#10253d",
   },
   input: {
     minHeight: 128,
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 16,
     textAlignVertical: "top",
     fontSize: 16,
     color: theme.dark,
-    backgroundColor: "#f8fbf6",
-    borderWidth: 1,
-    borderColor: theme.border,
+    backgroundColor: "#fffdf6",
+    borderWidth: 2,
+    borderColor: theme.dark,
   },
   pressed: {
     opacity: 0.92,

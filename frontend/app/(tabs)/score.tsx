@@ -11,7 +11,7 @@ export default function ScoreScreen() {
   const { badges, dashboard } = useApp();
 
   return (
-    <Screen title="Score" subtitle="Venlig motivation til at opdage mere natur — ikke hård konkurrence.">
+    <Screen title="BADGES & STJERNER" subtitle="Her kan du se alle dine seje fund, badges og små mål.">
       <View style={styles.statsRow}>
         <StatCard label="Point" value={String(dashboard?.totalPoints ?? 0)} />
         <StatCard label="Fund" value={String(dashboard?.totalFindings ?? 0)} accent="#f4eadf" />
@@ -56,14 +56,15 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   goalText: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 28,
+    fontWeight: "900",
     color: theme.dark,
   },
   helper: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: theme.textMuted,
+    fontSize: 16,
+    lineHeight: 22,
+    color: theme.dark,
+    fontWeight: "700",
   },
   row: {
     flexDirection: "row",

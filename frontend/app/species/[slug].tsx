@@ -29,29 +29,24 @@ export default function SpeciesScreen() {
   }
 
   return (
-    <Screen title={speciesPreview.danishName} subtitle={speciesPreview.latinName}>
+    <Screen title={speciesPreview.danishName} subtitle="Dit dyrekort med hurtige fakta og gode tegn at kigge efter.">
       <GlassCard>
         <Text style={styles.sectionTitle}>{speciesPreview.description}</Text>
-        <Text style={styles.helper}>Status: {speciesPreview.rarityStatus} · {speciesPreview.commonality}</Text>
+        <Text style={styles.helper}>Kategori: {speciesPreview.category} · {speciesPreview.subcategory}</Text>
+        <NatureButton label="Sammenlign billeder" onPress={() => router.push("/compare" as never)} variant="secondary" />
       </GlassCard>
 
       <GlassCard>
-        <SectionHeading title="Stamdata" />
-        <Text style={styles.info}>Gruppe: {speciesPreview.category}</Text>
-        <Text style={styles.info}>Underkategori: {speciesPreview.subcategory}</Text>
-        <Text style={styles.info}>Familie: {speciesPreview.family}</Text>
-        <Text style={styles.info}>Størrelse: {speciesPreview.size}</Text>
-        <Text style={styles.info}>Udseende: {speciesPreview.appearance}</Text>
-        <Text style={styles.info}>Levested: {speciesPreview.habitat}</Text>
-        <Text style={styles.info}>Føde: {speciesPreview.diet}</Text>
-        <Text style={styles.info}>Aktiv periode: {speciesPreview.activePeriod}</Text>
+        <SectionHeading title="3 hurtige fakta" />
+        <Text style={styles.info}>• {speciesPreview.characteristics[0] || speciesPreview.appearance}</Text>
+        <Text style={styles.info}>• Den bor tit i: {speciesPreview.habitat}</Text>
+        <Text style={styles.info}>• Den spiser: {speciesPreview.diet}</Text>
       </GlassCard>
 
       <GlassCard>
-        <SectionHeading title="Kendetegn og forvekslingsarter" />
+        <SectionHeading title="Kig efter" />
         <Text style={styles.info}>{speciesPreview.characteristics.join(", ")}</Text>
-        <Text style={styles.info}>Forvekslingsarter: {speciesPreview.confusionSpecies.join(", ") || "Ingen angivet"}</Text>
-        <Text style={styles.info}>Børnevenlig forklaring: {speciesPreview.childFriendlyExplanation}</Text>
+        <Text style={styles.info}>Forveksles med: {speciesPreview.confusionSpecies.join(", ") || "Ingen angivet"}</Text>
         <Text style={styles.info}>Sjov fakta: {speciesPreview.funFact}</Text>
         <Text style={styles.warning}>{speciesPreview.cautionAdvice}</Text>
       </GlassCard>

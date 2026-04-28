@@ -8,7 +8,11 @@ import requests
 
 
 # Core API smoke + CRUD regression for NaturFinder MVP flows
-BASE_URL = (os.environ.get("EXPO_BACKEND_URL") or "").rstrip("/")
+BASE_URL = (
+    os.environ.get("EXPO_BACKEND_URL")
+    or os.environ.get("EXPO_PUBLIC_BACKEND_URL")
+    or ""
+).rstrip("/")
 
 
 @pytest.fixture(scope="session")
@@ -64,6 +68,21 @@ def test_analyze_returns_structured_json(api_client, sample_image_base64):
     assert data["primarySuggestion"]["danishName"]
     assert isinstance(data["alternativeSuggestions"], list)
     assert "aiDisclaimer" in data
+
+
+def test_reference_image_endpoint_returns_expected_shape(api_client):
+    if not BASE_URL:
+        pytest.skip("EXPO_BACKEND_URL/EXPO_PUBLIC_BACKEND_URL er ikke sat")
+
+    response = api_client.get(
+        f"{BASE_URL}/api/reference-image",
+        params={"latinName": "Capreolus capreolus"},
+        timeout=30,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["latinName"] == "Capreolus capreolus"
+    assert "imageData" in data
 
 
 def test_save_get_dashboard_species_map_and_delete_finding(api_client, test_user):

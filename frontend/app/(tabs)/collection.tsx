@@ -49,7 +49,7 @@ export default function CollectionScreen() {
   };
 
   return (
-    <Screen title="Min samling" subtitle="Filtrér, søg og find tilbage til dine dyreoplevelser.">
+    <Screen title="MIN DYREBOG" subtitle="Her bor alle de dyr, du selv har fundet.">
       <TextInput
         onChangeText={setSearch}
         placeholder="Søg efter art"
@@ -90,7 +90,7 @@ export default function CollectionScreen() {
           </View>
         ))
       ) : (
-        <Text style={styles.helper}>Ingen fund matcher dit filter endnu.</Text>
+          <Text style={styles.helper}>Der er ingen dyr her endnu. Tag et billede og fyld din dyrebog!</Text>
       )}
     </Screen>
   );

@@ -63,15 +63,15 @@ export default function CameraScreen() {
   };
 
   return (
-    <Screen title="Kamera" subtitle="Kom tæt på, få dyret i fokus, og tag gerne billedet fra siden eller ovenfra.">
+    <Screen title="TAG ET BILLEDE" subtitle="Kom tæt på, få dyret i fokus, og tag billedet fra siden.">
       <GlassCard>
         {currentCapture ? (
           <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.preview} />
         ) : (
           <View style={styles.placeholder}>
             <Ionicons color={theme.primary} name="camera" size={42} />
-            <Text style={styles.placeholderTitle}>Klar til næste fund</Text>
-            <Text style={styles.placeholderText}>Tag et skarpt billede af dyret eller vælg et foto fra galleriet.</Text>
+            <Text style={styles.placeholderTitle}>Klar til et nyt dyr?</Text>
+            <Text style={styles.placeholderText}>Tag et tydeligt billede, så kan AI&apos;en bedre gætte dyret.</Text>
           </View>
         )}
       </GlassCard>
@@ -92,8 +92,8 @@ export default function CameraScreen() {
       </GlassCard>
 
       <NatureButton label="Tag billede" onPress={openCamera} icon={<Ionicons color="#f7fbf5" name="camera-outline" size={20} />} />
-      <NatureButton label="Vælg fra galleri" onPress={openLibrary} variant="secondary" icon={<Ionicons color={theme.dark} name="images-outline" size={20} />} />
-      <NatureButton label="Analyser billede" onPress={() => router.push("/analyze" as never)} disabled={!currentCapture} />
+      <NatureButton label="Vælg et billede" onPress={openLibrary} variant="secondary" icon={<Ionicons color="#fffdf6" name="images-outline" size={20} />} />
+      <NatureButton label="Se hvad det ligner" onPress={() => router.push("/analyze" as never)} disabled={!currentCapture} />
     </Screen>
   );
 }
@@ -108,21 +108,21 @@ const styles = StyleSheet.create({
   placeholder: {
     height: 320,
     borderRadius: 22,
-    backgroundColor: "#edf4eb",
+    backgroundColor: "#fff1f0",
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
     gap: 12,
   },
   placeholderTitle: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 28,
+    fontWeight: "900",
     color: theme.dark,
   },
   placeholderText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: theme.textMuted,
+    fontSize: 17,
+    lineHeight: 24,
+    color: theme.dark,
     textAlign: "center",
   },
   tipRow: {
@@ -132,8 +132,9 @@ const styles = StyleSheet.create({
   },
   tipText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: 21,
     color: theme.dark,
+    fontWeight: "700",
   },
 });

@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { FilterPill, GlassCard, SectionHeading } from "../components/Cards";
 import { NatureButton, Screen, theme } from "../components/Screen";
@@ -11,7 +11,7 @@ import { slugifyLatinName } from "../lib/api";
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { currentAnalysis, currentCapture, loadSpecies } = useApp();
+  const { busy, currentAnalysis, currentCapture, loadSpecies, saveCurrentFinding } = useApp();
 
   if (!currentAnalysis || !currentCapture) {
     return (
@@ -25,9 +25,25 @@ export default function ResultScreen() {
   }
 
   const suggestion = currentAnalysis.primarySuggestion;
+  const certaintyLabel =
+    suggestion.confidenceScore >= 0.8
+      ? "AI&apos;en er ret sikker"
+      : suggestion.confidenceScore >= 0.55
+        ? "AI&apos;en tror, det er den her"
+        : "AI&apos;en er lidt i tvivl";
+
+  const saveToDiary = async () => {
+    try {
+      await saveCurrentFinding({ note: "" });
+      Alert.alert("Flot fund!", `${suggestion.danishName} er nu i din dyrebog.`);
+      router.replace("/(tabs)/collection" as never);
+    } catch (error) {
+      Alert.alert("Ups", error instanceof Error ? error.message : "Prøv igen om lidt.");
+    }
+  };
 
   return (
-    <Screen title="Resultat" subtitle="Flot fund! Her er det mest sandsynlige bud ud fra dit billede.">
+    <Screen title="DET LIGNER..." subtitle="Flot fund! Her er dyret, som AI&apos;en bedst kan genkende.">
       <GlassCard>
         <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} />
         <View style={styles.badgeRow}>
@@ -35,7 +51,7 @@ export default function ResultScreen() {
             <Ionicons color={theme.primary} name="leaf-outline" size={18} />
             <Text style={styles.topBadgeText}>{suggestion.category}</Text>
           </View>
-          <Text style={styles.confidence}>{Math.round(suggestion.confidenceScore * 100)}% sikkerhed</Text>
+          <Text style={styles.confidence}>{certaintyLabel}</Text>
         </View>
         <Text style={styles.title}>{suggestion.danishName}</Text>
         <Text style={styles.subtitle}>{suggestion.latinName}</Text>
@@ -58,23 +74,23 @@ export default function ResultScreen() {
       </GlassCard>
 
       <GlassCard>
-        <SectionHeading title="Alternative forslag" />
+        <SectionHeading title="Måske også" />
         {currentAnalysis.alternativeSuggestions.length ? (
           currentAnalysis.alternativeSuggestions.map((item) => (
             <View key={`${item.latinName}-${item.danishName}`} style={styles.alternativeRow}>
               <Text style={styles.altName}>{item.danishName}</Text>
-              <Text style={styles.helper}>{Math.round(item.confidenceScore * 100)}%</Text>
+              <Text style={styles.helper}>Ligner også lidt</Text>
             </View>
           ))
         ) : (
-          <Text style={styles.helper}>Ingen stærke alternative bud denne gang.</Text>
+          <Text style={styles.helper}>AI&apos;en har ikke andre stærke bud lige nu.</Text>
         )}
       </GlassCard>
 
-      <NatureButton label="Gem fund" onPress={() => router.push("/save-finding" as never)} testID="result-save-button" />
+      <NatureButton label="Gem i min dyrebog" loading={busy} onPress={saveToDiary} testID="result-save-button" />
       <NatureButton
-        label="Vælg andet forslag"
-        onPress={() => router.push("/save-finding" as never)}
+        label="Sammenlign billeder"
+        onPress={() => router.push("/compare" as never)}
         testID="result-alternative-button"
         variant="secondary"
       />
@@ -124,13 +140,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   confidence: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: theme.primary,
+    flex: 1,
+    textAlign: "right",
+    fontSize: 15,
+    fontWeight: "900",
+    color: theme.dark,
   },
   title: {
-    fontSize: 30,
-    fontWeight: "800",
+    fontSize: 34,
+    fontWeight: "900",
     color: theme.dark,
   },
   subtitle: {
@@ -144,9 +162,10 @@ const styles = StyleSheet.create({
     color: theme.dark,
   },
   helper: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: theme.textMuted,
+    fontSize: 15,
+    lineHeight: 22,
+    color: theme.dark,
+    fontWeight: "700",
   },
   warning: {
     fontSize: 14,

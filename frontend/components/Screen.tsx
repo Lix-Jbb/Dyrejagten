@@ -106,14 +106,14 @@ export function NatureButton({
 }
 
 export const theme = {
-  background: "#f4f6f1",
-  card: "#fbfdf8",
-  dark: "#173222",
-  primary: "#4a7c59",
-  primarySoft: "#dcebdc",
-  accent: "#d7a86e",
-  textMuted: "#587163",
-  border: "#dbe5d8",
+  background: "#ffe66d",
+  card: "#fffdf6",
+  dark: "#10253d",
+  primary: "#f25f4c",
+  primarySoft: "#4f9dff",
+  accent: "#19c3b4",
+  textMuted: "#475569",
+  border: "#10253d",
 };
 
 const styles = StyleSheet.create({
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 18,
-    paddingBottom: 18,
+    paddingBottom: 24,
   },
   inner: {
     paddingHorizontal: 18,
@@ -143,41 +143,39 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   title: {
-    fontSize: 30,
-    fontWeight: "800",
+    fontSize: 34,
+    fontWeight: "900",
     color: theme.dark,
   },
   subtitle: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: theme.textMuted,
+    fontSize: 17,
+    lineHeight: 24,
+    color: theme.dark,
   },
   button: {
-    minHeight: 52,
-    borderRadius: 20,
-    paddingHorizontal: 18,
+    minHeight: 58,
+    borderRadius: 28,
+    paddingHorizontal: 22,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
+    borderWidth: 3,
+    borderColor: theme.dark,
   },
   primary: {
     backgroundColor: theme.primary,
   },
   secondary: {
     backgroundColor: theme.primarySoft,
-    borderWidth: 1,
-    borderColor: theme.border,
   },
   ghost: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: theme.border,
+    backgroundColor: "#fffdf6",
   },
   buttonText: {
-    color: "#f8faf7",
-    fontSize: 16,
-    fontWeight: "700",
+    color: "#fffdf6",
+    fontSize: 18,
+    fontWeight: "900",
   },
   ghostText: {
     color: theme.dark,

@@ -20,8 +20,8 @@ export default function HomeScreen() {
 
   return (
     <Screen
-      title={`Hej ${profile?.displayName ?? "Naturven"}`}
-      subtitle="Klar til et nyt fund i den danske natur?"
+      title="HVAD HAR DU FUNDET?"
+      subtitle={`Hej ${profile?.displayName ?? "Naturven"}! Klar til at finde et nyt dyr?`}
       rightAction={
         <Pressable onPress={() => router.push("/profile" as never)} style={styles.profileButton}>
           <Ionicons color={theme.dark} name="person-outline" size={22} />
@@ -29,8 +29,8 @@ export default function HomeScreen() {
       }
     >
       <GlassCard delay={100}>
-        <Text style={styles.heroKicker}>Dagens naturtur</Text>
-        <Text style={styles.heroTitle}>Tag billede af et dyr og få et roligt, ærligt AI-bud.</Text>
+        <Text style={styles.heroKicker}>NYT FUND</Text>
+        <Text style={styles.heroTitle}>Tag et billede og se, hvad AI&apos;en tror, du har fundet.</Text>
         <NatureButton
           label="Tag billede"
           icon={<Ionicons color="#f7fbf5" name="camera-outline" size={20} />}
@@ -48,7 +48,7 @@ export default function HomeScreen() {
         {dashboard?.nextBadge ? (
           <>
             <Text style={styles.badgeTitle}>{dashboard.nextBadge.title}</Text>
-            <Text style={styles.helper}>{dashboard.nextBadge.description}</Text>
+            <Text style={styles.helper}>Du er tæt på! {dashboard.nextBadge.description}</Text>
             <ProgressBar
               helper={`${dashboard.nextBadge.progress}/${dashboard.nextBadge.target}`}
               label="Du er godt på vej"
@@ -84,7 +84,7 @@ export default function HomeScreen() {
         />
       ) : (
         <GlassCard>
-          <Text style={styles.helper}>Du har endnu ingen fund. Start med et billede fra haven, skoven eller stranden.</Text>
+          <Text style={styles.helper}>Du har endnu ingen dyr i din dyrebog. Start med et billede fra haven, skoven eller stranden.</Text>
         </GlassCard>
       )}
     </Screen>
@@ -103,14 +103,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fbfdf8",
   },
   heroKicker: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: theme.primary,
+    fontSize: 14,
+    fontWeight: "900",
+    color: "#ff8c42",
   },
   heroTitle: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "800",
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: "900",
     color: theme.dark,
   },
   statsRow: {
@@ -118,14 +118,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   badgeTitle: {
-    fontSize: 20,
-    fontWeight: "800",
+    fontSize: 24,
+    fontWeight: "900",
     color: theme.dark,
   },
   helper: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: theme.textMuted,
+    fontSize: 15,
+    lineHeight: 22,
+    color: theme.dark,
+    fontWeight: "700",
   },
   categoryGrid: {
     flexDirection: "row",
@@ -134,12 +135,14 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     width: "48%",
-    backgroundColor: "#edf4eb",
+    backgroundColor: "#fff1f0",
     borderRadius: 18,
     padding: 14,
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: theme.dark,
   },
   categoryLabel: {
     flex: 1,

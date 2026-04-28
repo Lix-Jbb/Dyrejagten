@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
-import { FilterPill, GlassCard, NoteInput, SectionHeading } from "../components/Cards";
+import { FilterPill, GlassCard, SectionHeading } from "../components/Cards";
 import { NatureButton, Screen, theme } from "../components/Screen";
 import { useApp } from "../context/AppContext";
 import { AlternativeSuggestion } from "../lib/types";
@@ -10,10 +10,7 @@ import { AlternativeSuggestion } from "../lib/types";
 export default function SaveFindingScreen() {
   const router = useRouter();
   const { busy, currentAnalysis, currentCapture, profile, saveCurrentFinding } = useApp();
-  const [note, setNote] = useState("");
   const [chosenSuggestion, setChosenSuggestion] = useState<AlternativeSuggestion | null>(null);
-  const [customDanishName, setCustomDanishName] = useState(currentAnalysis?.primarySuggestion.danishName ?? "");
-  const [customLatinName, setCustomLatinName] = useState(currentAnalysis?.primarySuggestion.latinName ?? "");
 
   const options = useMemo(
     () => [currentAnalysis?.primarySuggestion, ...(currentAnalysis?.alternativeSuggestions ?? [])].filter(Boolean),
@@ -35,15 +32,16 @@ export default function SaveFindingScreen() {
 
   const save = async () => {
     try {
-      await saveCurrentFinding({ note, chosenSuggestion, customDanishName, customLatinName });
+      await saveCurrentFinding({ note: "", chosenSuggestion });
       Alert.alert("Fund gemt", `Flot fund! ${selectedName} er nu i din samling.`);
+      router.replace("/(tabs)/collection" as never);
     } catch (error) {
       Alert.alert("Kunne ikke gemme", error instanceof Error ? error.message : "Prøv igen.");
     }
   };
 
   return (
-    <Screen title="Gem fund" subtitle="Tilføj note, justér art om nødvendigt, og gem det i din samling.">
+    <Screen title="GEM FUNDET" subtitle="Vil du gemme det her dyr i din dyrebog?">
       <GlassCard>
         <SectionHeading title="Valgt art" />
         <View style={styles.wrap}>
@@ -55,11 +53,7 @@ export default function SaveFindingScreen() {
                 active={isActive}
                 key={item.latinName}
                 label={isPrimary ? `${item.danishName} (AI-bud)` : item.danishName}
-                onPress={() => {
-                  setChosenSuggestion(isPrimary ? null : (item as AlternativeSuggestion));
-                  setCustomDanishName(item.danishName);
-                  setCustomLatinName(item.latinName);
-                }}
+                onPress={() => setChosenSuggestion(isPrimary ? null : (item as AlternativeSuggestion))}
               />
             ) : null;
           })}
@@ -67,18 +61,12 @@ export default function SaveFindingScreen() {
       </GlassCard>
 
       <GlassCard>
-        <SectionHeading title="Ret art manuelt" />
-        <TextInput onChangeText={setCustomDanishName} style={styles.input} testID="input-custom-danish-name" value={customDanishName} />
-        <TextInput onChangeText={setCustomLatinName} style={styles.input} testID="input-custom-latin-name" value={customLatinName} />
-        <Text style={styles.helper}>Lokation gemmes kun, hvis du har valgt det i profilen. Lige nu: {profile?.allowLocation ? "til" : "fra"}.</Text>
+        <SectionHeading title="Klar til dyrebogen" />
+        <Text style={styles.helper}>Lokation gemmes kun, hvis den er slået til i profilen. Lige nu er den {profile?.allowLocation ? "til" : "fra"}.</Text>
+        <Text style={styles.helper}>Fundet bliver gemt med billede, dato og dyrets navn.</Text>
       </GlassCard>
 
-      <GlassCard>
-        <SectionHeading title="Din note" />
-        <NoteInput onChangeText={setNote} placeholder="Skriv fx hvor du så dyret, eller hvad der gjorde fundet særligt." testID="input-finding-note" value={note} />
-      </GlassCard>
-
-      <NatureButton label="Gem fund" loading={busy} onPress={save} testID="save-finding-button" />
+      <NatureButton label="Gem i min dyrebog" loading={busy} onPress={save} testID="save-finding-button" />
       <NatureButton label="Tilbage til resultat" onPress={() => router.back()} testID="back-to-result-button" variant="ghost" />
     </Screen>
   );
@@ -90,19 +78,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
   },
-  input: {
-    minHeight: 52,
-    borderRadius: 18,
-    backgroundColor: "#fbfdf8",
-    borderWidth: 1,
-    borderColor: theme.border,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: theme.dark,
-  },
   helper: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: theme.textMuted,
+    fontSize: 17,
+    lineHeight: 24,
+    color: theme.dark,
+    fontWeight: "700",
   },
 });

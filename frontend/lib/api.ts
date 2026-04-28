@@ -139,6 +139,12 @@ export async function fetchMapMarkers(userId: string, category = "Alle") {
   return request<MapMarker[]>(`/map/${userId}?category=${encodeURIComponent(category)}`);
 }
 
+export async function fetchReferenceImage(latinName: string) {
+  return request<{ latinName: string; imageData: string | null }>(
+    `/reference-image?latinName=${encodeURIComponent(latinName)}`
+  );
+}
+
 export async function deleteFinding(id: string) {
   return request<{ status: string }>(`/findings/${id}`, { method: "DELETE" });
 }
