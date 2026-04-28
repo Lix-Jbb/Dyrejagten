@@ -19,7 +19,7 @@ Ved dyr der kan stikke, bide eller være giftige, skal cautionAdvice sige: 'Rør
 
 
 def get_api_key() -> str:
-    return os.getenv("OPENAI_API_KEY", "").strip()
+    return os.getenv("EMERGENT_LLM_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
 
 
 def clean_json_response(raw_text: str) -> str:
