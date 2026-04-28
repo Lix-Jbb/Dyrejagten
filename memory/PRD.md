@@ -32,11 +32,15 @@ Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller v
 - Verificeret backend via curl: `/api/analyze`, `/api/findings`, `/api/dashboard`, `/api/species`, `/api/map`
 - Verificeret frontend visuelt: onboarding, hjem, score og direkte adgang til result/fallback
 - Tilføjet `/app/backend/tests/test_api_flows.py` med regressionstest for API-flows
+- Redesignet appen til børnevenlig dansk dyrebogsstil med stærke farver, store knapper, store overskrifter og samlekort-look
+- Fjernet skriv-selv note/manual redigering af fund og art for at gøre flowet enklere for et barn på 7 år
+- Tilføjet sammenligningsskærm med "Dit billede" vs. referencebillede/fallback og korte tegn at kigge efter
 
 ## Prioritized Backlog
 ### P0
 - Verificér komplet web-preview upload-flow end-to-end efter preview-tunnel er stabil
 - Lad brugerens egen OpenAI-nøgle overtage igen, når den har aktiv quota
+- Finpuds endnu flere børneflader (fx endnu tydeligere badge-fejringer og silhuetter i dyrebogen)
 
 ### P1
 - Eksport af fund

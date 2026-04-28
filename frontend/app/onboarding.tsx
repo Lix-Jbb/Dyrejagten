@@ -46,7 +46,7 @@ export default function OnboardingScreen() {
           </View>
           <Text style={styles.heroTitle}>En venlig naturdagbog til nysgerrige opdagere</Text>
           <Text style={styles.heroText}>
-            AI&apos;en kan tage fejl, især når arter ligner hinanden. Derfor viser appen altid usikkerhed og foreslår et nyt billede, hvis det er nødvendigt.
+            {"AI'en kan tage fejl, især når arter ligner hinanden. Derfor viser appen altid usikkerhed og foreslår et nyt billede, hvis det er nødvendigt."}
           </Text>
         </View>
         <View style={styles.statsRow}>
@@ -78,7 +78,7 @@ export default function OnboardingScreen() {
           {[
             "Tag billede eller vælg fra galleri",
             "AI-bud på dansk med alternative forslag",
-            "Gem fund med note, tid og valgfri lokation",
+            "Gem fund med billede, tid og valgfri lokation",
             "Samling, badges og personlig progression",
           ].map((item) => (
             <View key={item} style={styles.bulletRow}>

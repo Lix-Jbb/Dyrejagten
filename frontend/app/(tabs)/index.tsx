@@ -30,7 +30,7 @@ export default function HomeScreen() {
     >
       <GlassCard delay={100}>
         <Text style={styles.heroKicker}>NYT FUND</Text>
-        <Text style={styles.heroTitle}>Tag et billede og se, hvad AI&apos;en tror, du har fundet.</Text>
+        <Text style={styles.heroTitle}>{"Tag et billede og se, hvad AI'en tror, du har fundet."}</Text>
         <NatureButton
           label="Tag billede"
           icon={<Ionicons color="#f7fbf5" name="camera-outline" size={20} />}

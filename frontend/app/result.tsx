@@ -27,10 +27,10 @@ export default function ResultScreen() {
   const suggestion = currentAnalysis.primarySuggestion;
   const certaintyLabel =
     suggestion.confidenceScore >= 0.8
-      ? "AI&apos;en er ret sikker"
+      ? "AI'en er ret sikker"
       : suggestion.confidenceScore >= 0.55
-        ? "AI&apos;en tror, det er den her"
-        : "AI&apos;en er lidt i tvivl";
+        ? "AI'en tror, det er den her"
+        : "AI'en er lidt i tvivl";
 
   const saveToDiary = async () => {
     try {
@@ -43,7 +43,7 @@ export default function ResultScreen() {
   };
 
   return (
-    <Screen title="DET LIGNER..." subtitle="Flot fund! Her er dyret, som AI&apos;en bedst kan genkende.">
+    <Screen title="DET LIGNER..." subtitle="Flot fund! Her er dyret, som AI'en bedst kan genkende.">
       <GlassCard>
         <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} />
         <View style={styles.badgeRow}>
@@ -83,7 +83,7 @@ export default function ResultScreen() {
             </View>
           ))
         ) : (
-          <Text style={styles.helper}>AI&apos;en har ikke andre stærke bud lige nu.</Text>
+          <Text style={styles.helper}>{"AI'en har ikke andre stærke bud lige nu."}</Text>
         )}
       </GlassCard>
 

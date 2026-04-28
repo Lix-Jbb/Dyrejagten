@@ -71,7 +71,7 @@ export default function CameraScreen() {
           <View style={styles.placeholder}>
             <Ionicons color={theme.primary} name="camera" size={42} />
             <Text style={styles.placeholderTitle}>Klar til et nyt dyr?</Text>
-            <Text style={styles.placeholderText}>Tag et tydeligt billede, så kan AI&apos;en bedre gætte dyret.</Text>
+            <Text style={styles.placeholderText}>{"Tag et tydeligt billede, så kan AI'en bedre gætte dyret."}</Text>
           </View>
         )}
       </GlassCard>
