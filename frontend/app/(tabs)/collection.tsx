@@ -55,6 +55,7 @@ export default function CollectionScreen() {
         placeholder="Søg efter art"
         placeholderTextColor="#789080"
         style={styles.search}
+        testID="collection-search-input"
         value={search}
       />
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>

@@ -14,8 +14,14 @@ export default function ResultScreen() {
   const { currentAnalysis, currentCapture, loadSpecies } = useApp();
 
   if (!currentAnalysis || !currentCapture) {
-    router.replace("/(tabs)/camera" as never);
-    return null;
+    return (
+      <Screen title="Resultat" subtitle="Der er ikke et aktivt fund at vise endnu.">
+        <GlassCard>
+          <Text style={styles.helper}>Tag eller vælg først et billede, så kan vi vise analysen her.</Text>
+          <NatureButton label="Gå til kamera" onPress={() => router.replace("/(tabs)/camera" as never)} testID="result-fallback-camera-button" />
+        </GlassCard>
+      </Screen>
+    );
   }
 
   const suggestion = currentAnalysis.primarySuggestion;
@@ -65,17 +71,28 @@ export default function ResultScreen() {
         )}
       </GlassCard>
 
-      <NatureButton label="Gem fund" onPress={() => router.push("/save-finding" as never)} />
-      <NatureButton label="Vælg andet forslag" onPress={() => router.push("/save-finding" as never)} variant="secondary" />
+      <NatureButton label="Gem fund" onPress={() => router.push("/save-finding" as never)} testID="result-save-button" />
+      <NatureButton
+        label="Vælg andet forslag"
+        onPress={() => router.push("/save-finding" as never)}
+        testID="result-alternative-button"
+        variant="secondary"
+      />
       <NatureButton
         label="Se mere om dyret"
         onPress={async () => {
           await loadSpecies(slugifyLatinName(suggestion.latinName));
           router.push(`/species/${slugifyLatinName(suggestion.latinName)}` as never);
         }}
+        testID="result-species-button"
         variant="ghost"
       />
-      <NatureButton label="Prøv igen" onPress={() => router.replace("/(tabs)/camera" as never)} variant="ghost" />
+      <NatureButton
+        label="Prøv igen"
+        onPress={() => router.replace("/(tabs)/camera" as never)}
+        testID="result-retry-button"
+        variant="ghost"
+      />
     </Screen>
   );
 }

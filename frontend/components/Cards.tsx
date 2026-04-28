@@ -48,7 +48,11 @@ export function ProgressBar({ label, progress, helper }: { label: string; progre
 
 export function FindingCard({ finding, onPress }: { finding: Finding; onPress?: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.findingCard, pressed && styles.pressed]}>
+    <Pressable
+      onPress={onPress}
+      testID={`finding-${finding.id}`}
+      style={({ pressed }) => [styles.findingCard, pressed && styles.pressed]}
+    >
       <Image source={{ uri: finding.imageUrl }} style={styles.findingImage} />
       <View style={styles.findingBody}>
         <View style={styles.rowBetween}>
@@ -91,20 +95,34 @@ export function FilterPill({
   label,
   active,
   onPress,
+  testID,
 }: {
   label: string;
   active?: boolean;
   onPress: () => void;
+  testID?: string;
 }) {
   return (
-    <Pressable onPress={onPress} style={[styles.pill, active && styles.pillActive]}>
+    <Pressable
+      onPress={onPress}
+      testID={testID ?? `pill-${label.toLowerCase().replace(/[^a-z0-9æøå]+/g, "-")}`}
+      style={[styles.pill, active && styles.pillActive]}
+    >
       <Text style={[styles.pillText, active && styles.pillTextActive]}>{label}</Text>
     </Pressable>
   );
 }
 
 export function NoteInput(props: React.ComponentProps<typeof TextInput>) {
-  return <TextInput multiline placeholderTextColor="#789080" style={styles.input} {...props} />;
+  return (
+    <TextInput
+      multiline
+      placeholderTextColor="#789080"
+      style={styles.input}
+      testID={props.testID ?? "input-note"}
+      {...props}
+    />
+  );
 }
 
 const styles = StyleSheet.create({

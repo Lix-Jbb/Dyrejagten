@@ -21,8 +21,14 @@ export default function SaveFindingScreen() {
   );
 
   if (!currentAnalysis || !currentCapture) {
-    router.replace("/(tabs)/camera" as never);
-    return null;
+    return (
+      <Screen title="Gem fund" subtitle="Der er ikke et aktivt fund klar til at blive gemt.">
+        <GlassCard>
+          <Text style={styles.helper}>Start i kameraet, få en analyse, og vend derefter tilbage for at gemme fundet.</Text>
+          <NatureButton label="Til kamera" onPress={() => router.replace("/(tabs)/camera" as never)} testID="save-fallback-camera-button" />
+        </GlassCard>
+      </Screen>
+    );
   }
 
   const selectedName = chosenSuggestion?.danishName ?? currentAnalysis.primarySuggestion.danishName;
@@ -62,18 +68,18 @@ export default function SaveFindingScreen() {
 
       <GlassCard>
         <SectionHeading title="Ret art manuelt" />
-        <TextInput onChangeText={setCustomDanishName} style={styles.input} value={customDanishName} />
-        <TextInput onChangeText={setCustomLatinName} style={styles.input} value={customLatinName} />
+        <TextInput onChangeText={setCustomDanishName} style={styles.input} testID="input-custom-danish-name" value={customDanishName} />
+        <TextInput onChangeText={setCustomLatinName} style={styles.input} testID="input-custom-latin-name" value={customLatinName} />
         <Text style={styles.helper}>Lokation gemmes kun, hvis du har valgt det i profilen. Lige nu: {profile?.allowLocation ? "til" : "fra"}.</Text>
       </GlassCard>
 
       <GlassCard>
         <SectionHeading title="Din note" />
-        <NoteInput onChangeText={setNote} placeholder="Skriv fx hvor du så dyret, eller hvad der gjorde fundet særligt." value={note} />
+        <NoteInput onChangeText={setNote} placeholder="Skriv fx hvor du så dyret, eller hvad der gjorde fundet særligt." testID="input-finding-note" value={note} />
       </GlassCard>
 
-      <NatureButton label="Gem fund" loading={busy} onPress={save} />
-      <NatureButton label="Tilbage til resultat" onPress={() => router.back()} variant="ghost" />
+      <NatureButton label="Gem fund" loading={busy} onPress={save} testID="save-finding-button" />
+      <NatureButton label="Tilbage til resultat" onPress={() => router.back()} testID="back-to-result-button" variant="ghost" />
     </Screen>
   );
 }

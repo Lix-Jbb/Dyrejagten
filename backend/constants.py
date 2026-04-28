@@ -29,7 +29,7 @@ CATEGORY_OPTIONS: List[Dict[str, object]] = [
     },
     {
         "name": "Fugle",
-        "icon": "feather-outline",
+        "icon": "navigate-outline",
         "subcategories": [
             "Havefugle",
             "Rovfugle",

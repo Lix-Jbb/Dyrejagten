@@ -34,7 +34,7 @@ export default function ProfileScreen() {
     <Screen title="Profil og indstillinger" subtitle="Alt i appen er på dansk, og lokation er altid frivillig.">
       <GlassCard>
         <SectionHeading title="Navn" />
-        <TextInput onChangeText={setDraftName} style={styles.input} value={name} />
+        <TextInput onChangeText={setDraftName} style={styles.input} testID="profile-name-input" value={name} />
       </GlassCard>
 
       <GlassCard>

@@ -13,7 +13,7 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 type ScreenProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title?: string;
   subtitle?: string;
   scroll?: boolean;
@@ -64,7 +64,12 @@ type ButtonProps = {
   variant?: "primary" | "secondary" | "ghost";
   loading?: boolean;
   disabled?: boolean;
+  testID?: string;
 };
+
+function toTestId(value: string) {
+  return `btn-${value.toLowerCase().replace(/[^a-z0-9æøå]+/g, "-").replace(/^-|-$/g, "")}`;
+}
 
 export function NatureButton({
   label,
@@ -73,11 +78,14 @@ export function NatureButton({
   variant = "primary",
   loading,
   disabled,
+  testID,
 }: ButtonProps) {
   return (
     <Pressable
+      accessibilityRole="button"
       disabled={disabled || loading}
       onPress={onPress}
+      testID={testID ?? toTestId(label)}
       style={({ pressed }) => [
         styles.button,
         styles[variant],

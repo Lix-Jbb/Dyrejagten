@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 
 import {
   AnalysisResponse,
@@ -13,10 +14,10 @@ import {
   UserProfile,
 } from "./types";
 
-const backendUrl =
-  Constants.expoConfig?.extra?.backendUrl ?? process.env.EXPO_PUBLIC_BACKEND_URL ?? "";
+const nativeBackendUrl =
+  process.env.EXPO_PUBLIC_BACKEND_URL || Constants.expoConfig?.extra?.backendUrl || "";
 
-const API_BASE = `${backendUrl.replace(/\/$/, "")}/api`;
+const API_BASE = Platform.OS === "web" ? "/api" : `${nativeBackendUrl.replace(/\/$/, "")}/api`;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {

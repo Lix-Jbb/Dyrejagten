@@ -94,12 +94,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const categoryData = await fetchCategories();
       setCategories(categoryData);
 
-      let nextProfile: UserProfile;
-      try {
-        nextProfile = await fetchProfile(storedId);
-      } catch {
-        nextProfile = await bootstrapProfile(storedId, DEFAULT_NAME, false);
-      }
+      const nextProfile = await bootstrapProfile(storedId, DEFAULT_NAME, false);
 
       setProfile(nextProfile);
       const [dashboardData, findingsData, badgeData] = await Promise.all([

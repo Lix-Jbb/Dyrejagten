@@ -42,7 +42,7 @@ export function ScatterMap({ markers }: { markers: MapMarker[] }) {
             );
           })}
         </Svg>
-        <View pointerEvents="none" style={styles.overlayLabel}>
+        <View style={styles.overlayLabel}>
           <Text style={styles.labelTitle}>Danmark</Text>
           <Text style={styles.labelText}>Simple fund-markører med privatlivsbeskyttelse</Text>
         </View>
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     top: 18,
     left: 18,
     right: 18,
+    pointerEvents: "none",
     backgroundColor: "rgba(248,252,247,0.92)",
     borderRadius: 18,
     padding: 14,
