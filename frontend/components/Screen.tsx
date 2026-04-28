@@ -106,14 +106,14 @@ export function NatureButton({
 }
 
 export const theme = {
-  background: "#ffe66d",
+  background: "#e8f2e5",
   card: "#fffdf6",
-  dark: "#10253d",
-  primary: "#f25f4c",
-  primarySoft: "#4f9dff",
-  accent: "#19c3b4",
+  dark: "#1e3a2f",
+  primary: "#4a7c59",
+  primarySoft: "#7fa36b",
+  accent: "#e8ddc6",
   textMuted: "#475569",
-  border: "#10253d",
+  border: "#1e3a2f",
 };
 
 const styles = StyleSheet.create({

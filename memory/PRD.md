@@ -3,6 +3,12 @@
 ## Problem Statement
 Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller vælge billeder af dyr i Danmark, få AI-analyse på dansk, gemme fund i personlig samling og motiveres via point, badges, kategorier og kort.
 
+## Current Product Direction
+- Appnavn: **Dyrejagten**
+- Primært flow: Tag/vælg billede -> bekræft billede -> analyse -> gem i dyrebog -> dyreprofil
+- Navigation: **Hjem, Dyrebog, Badges, Profil**
+- Kamera er fjernet som separat menupunkt og ligger nu direkte på forsiden
+
 ## Architecture
 - **Frontend:** Expo Router + React Native + AsyncStorage
 - **Backend:** FastAPI + MongoDB
@@ -35,6 +41,13 @@ Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller v
 - Redesignet appen til børnevenlig dansk dyrebogsstil med stærke farver, store knapper, store overskrifter og samlekort-look
 - Fjernet skriv-selv note/manual redigering af fund og art for at gøre flowet enklere for et barn på 7 år
 - Tilføjet sammenligningsskærm med "Dit billede" vs. referencebillede/fallback og korte tegn at kigge efter
+- Omdøbt og omstruktureret appen til **Dyrejagten** med ny bundnavigation: Hjem, Dyrebog, Badges og Profil
+- Gjort forsiden ekstremt enkel med status + "Find et dyr" + direkte knapper til kamera og billedvalg
+- Flyttet kamera ud af bundnavigationen og gjort den tidligere kamera-skærm til bekræftelsesskærm efter valgt billede
+- Forenklet resultatflowet til ukendt-flow eller match-flow med kun få valg
+- Gjort dyrebogen dynamisk pr. art, så samme art samles på samme profil med swipe mellem billeder
+- Tilføjet skjult slet-funktion via diskret tre-prik-menu på dyreprofilen
+- Justeret farvepaletten til rolig naturgrøn Dyrejagten-stil
 
 ## Prioritized Backlog
 ### P0

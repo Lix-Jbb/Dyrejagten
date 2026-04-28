@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import { Image } from "expo-image";
+import { Ionicons } from "@expo/vector-icons";
 
 import { GlassCard, SectionHeading } from "../../components/Cards";
 import { ScatterMap } from "../../components/ScatterMap";
@@ -87,7 +88,7 @@ export default function SpeciesScreen() {
       subtitle="Dit dyrekort med billeder, korte fakta og steder, hvor du har fundet dyret."
       rightAction={
         <Pressable onPress={() => setMenuOpen(true)} style={styles.menuButton}>
-          <Text style={styles.menuDots}>⋯</Text>
+          <Ionicons color={theme.dark} name="ellipsis-horizontal" size={16} />
         </Pressable>
       }
     >
@@ -201,20 +202,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   menuButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
-    borderWidth: 2,
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    borderWidth: 1,
     borderColor: theme.dark,
     backgroundColor: "#fffdf6",
     alignItems: "center",
     justifyContent: "center",
-  },
-  menuDots: {
-    fontSize: 26,
-    lineHeight: 26,
-    color: theme.dark,
-    fontWeight: "900",
+    opacity: 0.68,
   },
   heroImage: {
     width: 320,

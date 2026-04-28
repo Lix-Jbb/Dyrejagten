@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     minHeight: 104,
-    backgroundColor: "#fff5d7",
+    backgroundColor: "#eef5ea",
     borderRadius: 26,
     padding: 16,
     justifyContent: "space-between",
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   confidence: {
     fontSize: 14,
     fontWeight: "900",
-    color: "#ff8c42",
+    color: theme.primary,
   },
   findingDescription: {
     fontSize: 14,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 14,
     alignItems: "flex-start",
-    backgroundColor: "#fff1f0",
+    backgroundColor: "#eef5ea",
     padding: 16,
     borderRadius: 26,
     borderWidth: 2,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: "#ff8c42",
+    backgroundColor: theme.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     borderColor: theme.dark,
   },
   pillActive: {
-    backgroundColor: "#19c3b4",
+    backgroundColor: theme.accent,
     borderColor: theme.dark,
   },
   pillText: {
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   pillTextActive: {
-    color: "#10253d",
+    color: theme.dark,
   },
   input: {
     minHeight: 128,

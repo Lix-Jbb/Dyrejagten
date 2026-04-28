@@ -34,11 +34,11 @@ export default function TabLayout() {
         },
       })}
     >
-      <Tabs.Screen name="index" options={{ title: "Hjem" }} />
+      <Tabs.Screen name="index" options={{ title: "Hjem", tabBarButtonTestID: "tab-home" }} />
       <Tabs.Screen name="camera" options={{ href: null }} />
-      <Tabs.Screen name="collection" options={{ title: "Dyrebog" }} />
-      <Tabs.Screen name="score" options={{ title: "Badges" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profil" }} />
+      <Tabs.Screen name="collection" options={{ title: "Dyrebog", tabBarButtonTestID: "tab-book" }} />
+      <Tabs.Screen name="score" options={{ title: "Badges", tabBarButtonTestID: "tab-badges" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profil", tabBarButtonTestID: "tab-profile" }} />
     </Tabs>
   );
 }
