@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
-import { FilterPill, GlassCard, SectionHeading } from "../components/Cards";
+import { GlassCard } from "../components/Cards";
 import { NatureButton, Screen, theme } from "../components/Screen";
 import { useApp } from "../context/AppContext";
 import { slugifyLatinName } from "../lib/api";
@@ -25,6 +25,7 @@ export default function ResultScreen() {
   }
 
   const suggestion = currentAnalysis.primarySuggestion;
+  const isUnknown = currentAnalysis.shouldAskForNewPhoto && suggestion.confidenceScore < 0.45;
   const certaintyLabel =
     suggestion.confidenceScore >= 0.8
       ? "AI'en er ret sikker"
@@ -34,16 +35,29 @@ export default function ResultScreen() {
 
   const saveToDiary = async () => {
     try {
-      await saveCurrentFinding({ note: "" });
+      const finding = await saveCurrentFinding({ note: "" });
       Alert.alert("Flot fund!", `${suggestion.danishName} er nu i din dyrebog.`);
-      router.replace("/(tabs)/collection" as never);
+      await loadSpecies(slugifyLatinName(finding.latinName));
+      router.replace(`/species/${slugifyLatinName(finding.latinName)}` as never);
     } catch (error) {
       Alert.alert("Ups", error instanceof Error ? error.message : "Prøv igen om lidt.");
     }
   };
 
+  if (isUnknown) {
+    return (
+      <Screen title="Kunne ikke matche det med et dyr." subtitle="Prøv igen med et andet billede.">
+        <GlassCard>
+          <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} />
+        </GlassCard>
+        <NatureButton label="Tag nyt billede" onPress={() => router.replace("/(tabs)/camera" as never)} />
+        <NatureButton label="Annuller" onPress={() => router.replace("/(tabs)" as never)} variant="ghost" />
+      </Screen>
+    );
+  }
+
   return (
-    <Screen title="DET LIGNER..." subtitle="Flot fund! Her er dyret, som AI'en bedst kan genkende.">
+    <Screen title="Det ligner..." subtitle={`Det ligner en ${suggestion.danishName.toLowerCase()}.`}>
       <GlassCard>
         <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} />
         <View style={styles.badgeRow}>
@@ -55,60 +69,11 @@ export default function ResultScreen() {
         </View>
         <Text style={styles.title}>{suggestion.danishName}</Text>
         <Text style={styles.subtitle}>{suggestion.latinName}</Text>
-        <Text style={styles.body}>{suggestion.description}</Text>
-        <Text style={styles.helper}>{currentAnalysis.aiDisclaimer}</Text>
+        <Text style={styles.body}>{certaintyLabel}</Text>
         {currentAnalysis.shouldAskForNewPhoto ? <Text style={styles.warning}>{currentAnalysis.retryHint}</Text> : null}
       </GlassCard>
-
-      <GlassCard>
-        <SectionHeading title="Kendetegn" />
-        <View style={styles.wrap}>
-          {suggestion.characteristics.map((item) => (
-            <FilterPill active key={item} label={item} onPress={() => null} />
-          ))}
-        </View>
-        <Text style={styles.infoLabel}>Levested</Text>
-        <Text style={styles.body}>{suggestion.habitat}</Text>
-        <Text style={styles.infoLabel}>Vær opmærksom</Text>
-        <Text style={styles.body}>{suggestion.cautionAdvice}</Text>
-      </GlassCard>
-
-      <GlassCard>
-        <SectionHeading title="Måske også" />
-        {currentAnalysis.alternativeSuggestions.length ? (
-          currentAnalysis.alternativeSuggestions.map((item) => (
-            <View key={`${item.latinName}-${item.danishName}`} style={styles.alternativeRow}>
-              <Text style={styles.altName}>{item.danishName}</Text>
-              <Text style={styles.helper}>Ligner også lidt</Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.helper}>{"AI'en har ikke andre stærke bud lige nu."}</Text>
-        )}
-      </GlassCard>
-
       <NatureButton label="Gem i min dyrebog" loading={busy} onPress={saveToDiary} testID="result-save-button" />
-      <NatureButton
-        label="Sammenlign billeder"
-        onPress={() => router.push("/compare" as never)}
-        testID="result-alternative-button"
-        variant="secondary"
-      />
-      <NatureButton
-        label="Se mere om dyret"
-        onPress={async () => {
-          await loadSpecies(slugifyLatinName(suggestion.latinName));
-          router.push(`/species/${slugifyLatinName(suggestion.latinName)}` as never);
-        }}
-        testID="result-species-button"
-        variant="ghost"
-      />
-      <NatureButton
-        label="Prøv igen"
-        onPress={() => router.replace("/(tabs)/camera" as never)}
-        testID="result-retry-button"
-        variant="ghost"
-      />
+      <NatureButton label="Annuller" onPress={() => router.replace("/(tabs)" as never)} testID="result-cancel-button" variant="ghost" />
     </Screen>
   );
 }
@@ -157,9 +122,10 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   body: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 19,
+    lineHeight: 26,
     color: theme.dark,
+    fontWeight: "800",
   },
   helper: {
     fontSize: 15,
@@ -172,25 +138,5 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     color: "#8b5a1f",
     fontWeight: "700",
-  },
-  infoLabel: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: theme.dark,
-  },
-  wrap: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  alternativeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  altName: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: theme.dark,
   },
 });

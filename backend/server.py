@@ -314,6 +314,16 @@ async def get_species_detail(slug: str, userId: str) -> SpeciesDetail:
     return SpeciesDetail(**{**species, "findings": findings})
 
 
+@api_router.delete("/species/{slug}")
+async def delete_species_entries(slug: str, userId: str) -> Dict[str, object]:
+    species = await db.species.find_one({"slug": slug}, {"_id": 0})
+    if not species:
+        raise HTTPException(status_code=404, detail="Arten blev ikke fundet")
+
+    result = await db.findings.delete_many({"userId": userId, "latinName": species["latinName"]})
+    return {"status": "deleted", "deletedCount": result.deleted_count}
+
+
 @api_router.get("/map/{user_id}", response_model=List[MapMarker])
 async def get_map_markers(user_id: str, category: Optional[str] = None) -> List[MapMarker]:
     await get_profile_or_404(user_id)

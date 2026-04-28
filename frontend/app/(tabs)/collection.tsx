@@ -1,52 +1,52 @@
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { FilterPill, FindingCard, SectionHeading } from "../../components/Cards";
-import { NatureButton, Screen, theme } from "../../components/Screen";
+import { FilterPill, GlassCard, SectionHeading } from "../../components/Cards";
+import { Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
 import { slugifyLatinName } from "../../lib/api";
 
-const SORT_OPTIONS = ["Nyeste", "Ældste", "Kategori", "Art"];
-
 export default function CollectionScreen() {
   const router = useRouter();
-  const { findings, categories, removeFinding } = useApp();
+  const { findings, categories } = useApp();
   const [selectedCategory, setSelectedCategory] = useState("Alle");
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("Nyeste");
+
+  const grouped = useMemo(() => {
+    const groupedMap = new Map<string, (typeof findings)[number][]>();
+    findings.forEach((finding) => {
+      const key = finding.latinName;
+      const list = groupedMap.get(key) ?? [];
+      list.push(finding);
+      groupedMap.set(key, list);
+    });
+
+    return Array.from(groupedMap.entries()).map(([, items]) => {
+      const sorted = [...items].sort((a, b) => b.capturedAt.localeCompare(a.capturedAt));
+      return {
+        latest: sorted[0],
+        count: sorted.length,
+      };
+    });
+  }, [findings]);
 
   const filtered = useMemo(() => {
-    let next = [...findings];
+    let next = [...grouped];
     if (selectedCategory !== "Alle") {
-      next = next.filter((item) => item.category === selectedCategory);
+      next = next.filter((item) => item.latest.category === selectedCategory);
     }
     if (search.trim()) {
       const term = search.trim().toLowerCase();
       next = next.filter(
         (item) =>
-          item.danishName.toLowerCase().includes(term) || item.latinName.toLowerCase().includes(term)
+          item.latest.danishName.toLowerCase().includes(term) ||
+          item.latest.latinName.toLowerCase().includes(term)
       );
     }
-
-    if (sort === "Ældste") {
-      next.sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
-    } else if (sort === "Kategori") {
-      next.sort((a, b) => `${a.category}${a.danishName}`.localeCompare(`${b.category}${b.danishName}`));
-    } else if (sort === "Art") {
-      next.sort((a, b) => a.danishName.localeCompare(b.danishName));
-    } else {
-      next.sort((a, b) => b.capturedAt.localeCompare(a.capturedAt));
-    }
+    next.sort((a, b) => b.latest.capturedAt.localeCompare(a.latest.capturedAt));
     return next;
-  }, [findings, search, selectedCategory, sort]);
-
-  const confirmDelete = (id: string) => {
-    Alert.alert("Slet fund", "Vil du slette dette fund fra din samling?", [
-      { text: "Annuller", style: "cancel" },
-      { text: "Slet", style: "destructive", onPress: () => removeFinding(id) },
-    ]);
-  };
+  }, [grouped, search, selectedCategory]);
 
   return (
     <Screen title="MIN DYREBOG" subtitle="Her bor alle de dyr, du selv har fundet.">
@@ -71,23 +71,26 @@ export default function CollectionScreen() {
           ))}
         </View>
       </ScrollView>
-
-      <SectionHeading title="Sortering" />
-      <View style={styles.pillRow}>
-        {SORT_OPTIONS.map((option) => (
-          <FilterPill key={option} active={sort === option} label={option} onPress={() => setSort(option)} />
-        ))}
-      </View>
+      <SectionHeading title="Dine dyr" />
 
       {filtered.length ? (
-        filtered.map((finding) => (
-          <View key={finding.id} style={styles.findingWrap}>
-            <FindingCard
-              finding={finding}
-              onPress={() => router.push(`/species/${slugifyLatinName(finding.latinName)}` as never)}
-            />
-            <NatureButton label="Slet fund" onPress={() => confirmDelete(finding.id)} variant="ghost" />
-          </View>
+        filtered.map((entry) => (
+          <GlassCard key={entry.latest.id}>
+            <View style={styles.cardRow}>
+              <Image source={{ uri: entry.latest.imageUrl }} style={styles.image} />
+              <View style={styles.cardBody}>
+                <Text style={styles.name}>{entry.latest.danishName}</Text>
+                <Text style={styles.meta}>{entry.latest.category}</Text>
+                <Text style={styles.meta}>Fundet {entry.count} gange</Text>
+                <Text style={styles.meta}>Senest fundet {entry.latest.dateLabel}</Text>
+                <FilterPill
+                  active
+                  label="Se dyret"
+                  onPress={() => router.push(`/species/${slugifyLatinName(entry.latest.latinName)}` as never)}
+                />
+              </View>
+            </View>
+          </GlassCard>
         ))
       ) : (
           <Text style={styles.helper}>Der er ingen dyr her endnu. Tag et billede og fyld din dyrebog!</Text>
@@ -111,12 +114,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  findingWrap: {
-    gap: 10,
+  cardRow: {
+    flexDirection: "row",
+    gap: 14,
+    alignItems: "center",
+  },
+  image: {
+    width: 104,
+    height: 104,
+    borderRadius: 24,
+    backgroundColor: "#dbe5d8",
+    borderWidth: 2,
+    borderColor: theme.dark,
+  },
+  cardBody: {
+    flex: 1,
+    gap: 8,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: "900",
+    color: theme.dark,
+  },
+  meta: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: theme.dark,
   },
   helper: {
     fontSize: 15,
     lineHeight: 22,
-    color: theme.textMuted,
+    color: theme.dark,
+    fontWeight: "700",
   },
 });

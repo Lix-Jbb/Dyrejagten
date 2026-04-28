@@ -244,3 +244,78 @@ def test_map_rounds_coordinates_for_rare_species(api_client, test_user):
     assert marker["longitude"] == round(12.54321, 1)
 
     api_client.delete(f"{BASE_URL}/api/findings/{finding_id}", timeout=30)
+
+
+def test_species_delete_route_removes_user_findings(api_client, test_user):
+    user_id = test_user["userId"]
+    latin_name = "Testudo hermanni"
+    slug = "testudo-hermanni"
+
+    analysis_payload = {
+        "primarySuggestion": {
+            "danishName": "Skildpadde",
+            "latinName": latin_name,
+            "category": "Krybdyr",
+            "subcategory": "Skildpadder",
+            "family": "Testudinidae",
+            "confidenceScore": 0.8,
+            "description": "Test-art til species delete route.",
+            "characteristics": ["Skjold"],
+            "habitat": "Have",
+            "rarityStatus": "Almindelig",
+            "warning": "Ikke farlig for mennesker",
+            "cautionAdvice": "Hold afstand og tag kun billeder.",
+            "size": "Mellem",
+            "appearance": "Skjold",
+            "diet": "Planter",
+            "activePeriod": "Dag",
+            "confusionSpecies": [],
+            "funFact": "Kan blive gammel",
+            "childFriendlyExplanation": "Et dyr med hus på ryggen",
+            "commonality": "Sjælden i Danmark",
+        },
+        "alternativeSuggestions": [],
+        "imageQuality": {"quality": "Middel", "issues": []},
+        "shouldAskForNewPhoto": False,
+        "aiDisclaimer": "AI-vurderingen kan være usikker, især når arter ligner hinanden.",
+        "retryHint": "Prøv et nyt billede tættere på dyret og gerne fra siden eller ovenfra.",
+    }
+
+    create_response = api_client.post(
+        f"{BASE_URL}/api/findings",
+        json={
+            "userId": user_id,
+            "imageData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
+            "latitude": None,
+            "longitude": None,
+            "municipality": None,
+            "userNote": "TEST_species_delete",
+            "aiVerifiedStatus": "AI-vurderet",
+            "capturedAt": "2026-01-07T11:00:00Z",
+            "analysis": analysis_payload,
+        },
+        timeout=30,
+    )
+    assert create_response.status_code == 200
+
+    species_response = api_client.get(
+        f"{BASE_URL}/api/species/{slug}",
+        params={"userId": user_id},
+        timeout=30,
+    )
+    assert species_response.status_code == 200
+
+    delete_response = api_client.delete(
+        f"{BASE_URL}/api/species/{slug}",
+        params={"userId": user_id},
+        timeout=30,
+    )
+    assert delete_response.status_code == 200
+    deleted_payload = delete_response.json()
+    assert deleted_payload["status"] == "deleted"
+    assert deleted_payload["deletedCount"] >= 1
+
+    list_response = api_client.get(f"{BASE_URL}/api/findings", params={"userId": user_id}, timeout=30)
+    assert list_response.status_code == 200
+    findings = list_response.json()
+    assert all(item["latinName"] != latin_name for item in findings)

@@ -1,16 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { FindingCard, GlassCard, ProgressBar, SectionHeading, StatCard } from "../../components/Cards";
+import { GlassCard } from "../../components/Cards";
 import { NatureButton, Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
-import { slugifyLatinName } from "../../lib/api";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { dashboard, categories, profile, refreshData } = useApp();
+  const { dashboard, refreshData, setCurrentCapture } = useApp();
 
   useFocusEffect(
     useCallback(() => {
@@ -18,75 +18,77 @@ export default function HomeScreen() {
     }, [refreshData])
   );
 
+  const handlePickedImage = (asset: ImagePicker.ImagePickerAsset) => {
+    if (!asset.base64) {
+      Alert.alert("Billedet kunne ikke bruges", "Prøv et andet billede.");
+      return;
+    }
+    setCurrentCapture({
+      uri: asset.uri,
+      base64: asset.base64,
+      mimeType: asset.mimeType ?? "image/jpeg",
+      capturedAt: new Date().toISOString(),
+    });
+    router.push("/(tabs)/camera" as never);
+  };
+
+  const openCamera = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (permission.status !== "granted") {
+      Alert.alert("Kamera kræver tilladelse", "Tillad kameraet for at tage et billede af dyret.");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
+    if (!result.canceled) {
+      handlePickedImage(result.assets[0]);
+    }
+  };
+
+  const openLibrary = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permission.status !== "granted") {
+      Alert.alert("Billedbibliotek kræver tilladelse", "Tillad billeder for at vælge et dyr fra biblioteket.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
+    if (!result.canceled) {
+      handlePickedImage(result.assets[0]);
+    }
+  };
+
   return (
     <Screen
-      title="HVAD HAR DU FUNDET?"
-      subtitle={`Hej ${profile?.displayName ?? "Naturven"}! Klar til at finde et nyt dyr?`}
+      title="Dyrejagten"
+      subtitle="Tag et billede af et dyr, og gem det i din egen dyrebog."
       rightAction={
-        <Pressable onPress={() => router.push("/profile" as never)} style={styles.profileButton}>
+        <Pressable onPress={() => router.push("/(tabs)/profile" as never)} style={styles.profileButton}>
           <Ionicons color={theme.dark} name="person-outline" size={22} />
         </Pressable>
       }
     >
+      <GlassCard>
+        <Text style={styles.statusLine}>Du har fundet {dashboard?.totalFindings ?? 0} dyr</Text>
+        <Text style={styles.statusLine}>{dashboard?.uniqueSpecies ?? 0} unikke arter</Text>
+      </GlassCard>
+
       <GlassCard delay={100}>
-        <Text style={styles.heroKicker}>NYT FUND</Text>
-        <Text style={styles.heroTitle}>{"Tag et billede og se, hvad AI'en tror, du har fundet."}</Text>
+        <Text style={styles.heroKicker}>FIND ET DYR</Text>
+        <View style={styles.heroCircle}>
+          <Ionicons color="#fffdf6" name="camera" size={54} />
+        </View>
+        <Text style={styles.heroTitle}>Find et dyr</Text>
         <NatureButton
           label="Tag billede"
           icon={<Ionicons color="#f7fbf5" name="camera-outline" size={20} />}
-          onPress={() => router.push("/(tabs)/camera" as never)}
+          onPress={openCamera}
+        />
+        <NatureButton
+          label="Vælg billede"
+          icon={<Ionicons color="#fffdf6" name="images-outline" size={20} />}
+          onPress={openLibrary}
+          variant="secondary"
         />
       </GlassCard>
-
-      <View style={styles.statsRow}>
-        <StatCard label="Fund i alt" value={String(dashboard?.totalFindings ?? 0)} />
-        <StatCard label="Unikke arter" value={String(dashboard?.uniqueSpecies ?? 0)} accent="#f4eadf" />
-      </View>
-
-      <GlassCard>
-        <SectionHeading title="Næste badge" />
-        {dashboard?.nextBadge ? (
-          <>
-            <Text style={styles.badgeTitle}>{dashboard.nextBadge.title}</Text>
-            <Text style={styles.helper}>Du er tæt på! {dashboard.nextBadge.description}</Text>
-            <ProgressBar
-              helper={`${dashboard.nextBadge.progress}/${dashboard.nextBadge.target}`}
-              label="Du er godt på vej"
-              progress={dashboard.nextBadge.progress / dashboard.nextBadge.target}
-            />
-          </>
-        ) : (
-          <Text style={styles.helper}>Du har allerede låst de nuværende badges op. Flot gået!</Text>
-        )}
-      </GlassCard>
-
-      <GlassCard>
-        <SectionHeading title="Hurtige kategorier" />
-        <View style={styles.categoryGrid}>
-          {categories.slice(0, 6).map((category) => (
-            <View key={category.name} style={styles.categoryItem}>
-              <Ionicons color={theme.primary} name={category.icon as keyof typeof Ionicons.glyphMap} size={18} />
-              <Text style={styles.categoryLabel}>{category.name}</Text>
-            </View>
-          ))}
-        </View>
-      </GlassCard>
-
-      <View style={styles.sectionSpacing}>
-        <SectionHeading title="Seneste fund" action={<Text style={styles.helper}>{dashboard?.mostPhotographedCategory ?? ""}</Text>} />
-      </View>
-      {dashboard?.recentFindings?.length ? (
-        <FindingCard
-          finding={dashboard.recentFindings[0]}
-          onPress={() =>
-            router.push(`/species/${slugifyLatinName(dashboard.recentFindings[0].latinName)}` as never)
-          }
-        />
-      ) : (
-        <GlassCard>
-          <Text style={styles.helper}>Du har endnu ingen dyr i din dyrebog. Start med et billede fra haven, skoven eller stranden.</Text>
-        </GlassCard>
-      )}
     </Screen>
   );
 }
@@ -103,54 +105,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#fbfdf8",
   },
   heroKicker: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "900",
-    color: "#ff8c42",
+    color: theme.primary,
+  },
+  heroCircle: {
+    width: 110,
+    height: 110,
+    borderRadius: 999,
+    backgroundColor: theme.primary,
+    borderWidth: 3,
+    borderColor: theme.dark,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
   },
   heroTitle: {
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 32,
+    lineHeight: 38,
     fontWeight: "900",
     color: theme.dark,
+    textAlign: "center",
   },
-  statsRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  badgeTitle: {
-    fontSize: 24,
-    fontWeight: "900",
+  statusLine: {
+    fontSize: 20,
+    fontWeight: "800",
     color: theme.dark,
-  },
-  helper: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: theme.dark,
-    fontWeight: "700",
-  },
-  categoryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  categoryItem: {
-    width: "48%",
-    backgroundColor: "#fff1f0",
-    borderRadius: 18,
-    padding: 14,
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: theme.dark,
-  },
-  categoryLabel: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "700",
-    color: theme.dark,
-  },
-  sectionSpacing: {
-    marginTop: 2,
   },
 });

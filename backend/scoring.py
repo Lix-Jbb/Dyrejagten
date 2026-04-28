@@ -23,23 +23,41 @@ def get_season(date_string: str) -> str:
 
 
 def calculate_award(findings: List[Dict[str, object]], candidate: Dict[str, object]) -> Tuple[int, bool, bool]:
-    points = 10
     candidate_key = normalize_species_key(candidate)
     existing_species = {normalize_species_key(finding) for finding in findings}
     existing_categories = {str(finding.get("category") or "") for finding in findings}
     is_new_species = candidate_key not in existing_species
     is_first_in_category = str(candidate.get("category") or "") not in existing_categories
+    points = 10 if is_new_species else 5
 
     if is_new_species:
         points += 25
     if is_first_in_category:
-        points += 50
-    if str(candidate.get("rarityStatus") or "") in RARE_STATUSES:
-        points += 20
-    if float(candidate.get("confidenceScore") or 0) >= 0.85:
+        points += 40
+    if str(candidate.get("municipality") or "").strip() or candidate.get("latitude") or candidate.get("longitude"):
         points += 5
-    if str(candidate.get("userNote") or "").strip():
-        points += 5
+
+    candidate_date = str(candidate.get("capturedAt") or "")[:10]
+    unique_days = sorted({str(f.get("capturedAt") or "")[:10] for f in findings if str(f.get("capturedAt") or "")[:10]})
+    if candidate_date and candidate_date not in unique_days:
+        unique_days.append(candidate_date)
+        unique_days.sort()
+
+    if unique_days:
+        streak = 1
+        best_streak = 1
+        for previous, current in zip(unique_days, unique_days[1:]):
+            diff = (datetime.fromisoformat(current) - datetime.fromisoformat(previous)).days
+            if diff == 1:
+                streak += 1
+                best_streak = max(best_streak, streak)
+            else:
+                streak = 1
+
+        if best_streak >= 7:
+            points += 100
+        elif best_streak >= 3:
+            points += 30
 
     return points, is_new_species, is_first_in_category
 

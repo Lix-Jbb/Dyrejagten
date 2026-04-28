@@ -8,9 +8,19 @@ import { NatureButton, Screen, theme } from "../components/Screen";
 import { useApp } from "../context/AppContext";
 
 const LOADING_STEPS = [
-  "AI kigger på dyret...",
-  "Sammenligner med danske arter...",
-  "Finder kendetegn...",
+  "Dyrejagten undersøger billedet...",
+  "Kigger efter poter, vinger og følehorn...",
+  "Tæller ben uden at blive rundtosset...",
+  "Leder i den danske dyrebog...",
+  "Sammenligner med dyr fra skov, have og strand...",
+  "Tjekker om det har pels, fjer eller skjold...",
+  "Finder små spor i billedet...",
+  "Spørger billerne pænt om hjælp...",
+  "Kigger efter næb, snude eller snabel...",
+  "Bladrer hurtigt i naturens store opslagsbog...",
+  "Undersøger om det er et insekt, en fugl eller noget helt tredje...",
+  "Sætter lup på de små detaljer...",
+  "Næsten færdig... dyret gemmer sig ikke meget længere.",
 ];
 
 export default function AnalyzeScreen() {
@@ -38,7 +48,7 @@ export default function AnalyzeScreen() {
   const loadingText = useMemo(() => LOADING_STEPS[stepIndex], [stepIndex]);
 
   return (
-    <Screen title="Analyse" subtitle="Vi holder tonen enkel og ærlig, også hvis billedet er svært at vurdere.">
+    <Screen title="Dyrejagten undersøger billedet..." subtitle="Vi leder efter et dyr i den danske natur.">
       <GlassCard>
         {currentCapture ? <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} /> : null}
         <View style={styles.centered}>

@@ -25,18 +25,20 @@ export default function TabLayout() {
         tabBarIcon: ({ color, size }) => {
           const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
             index: "leaf-outline",
-            camera: "camera-outline",
-            collection: "albums-outline",
+            collection: "book-outline",
             score: "ribbon-outline",
+            profile: "person-outline",
+            camera: "camera-outline",
           };
           return <Ionicons color={color} name={iconMap[route.name] || "ellipse-outline"} size={size} />;
         },
       })}
     >
       <Tabs.Screen name="index" options={{ title: "Hjem" }} />
-      <Tabs.Screen name="camera" options={{ title: "Kamera" }} />
-      <Tabs.Screen name="collection" options={{ title: "Samling" }} />
-      <Tabs.Screen name="score" options={{ title: "Score" }} />
+      <Tabs.Screen name="camera" options={{ href: null }} />
+      <Tabs.Screen name="collection" options={{ title: "Dyrebog" }} />
+      <Tabs.Screen name="score" options={{ title: "Badges" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profil" }} />
     </Tabs>
   );
 }

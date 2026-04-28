@@ -149,6 +149,13 @@ export async function deleteFinding(id: string) {
   return request<{ status: string }>(`/findings/${id}`, { method: "DELETE" });
 }
 
+export async function deleteSpeciesBySlug(userId: string, slug: string) {
+  return request<{ status: string; deletedCount: number }>(
+    `/species/${slug}?userId=${encodeURIComponent(userId)}`,
+    { method: "DELETE" }
+  );
+}
+
 export async function deleteAllData(userId: string) {
   return request<{ status: string }>(`/profile/${userId}`, { method: "DELETE" });
 }

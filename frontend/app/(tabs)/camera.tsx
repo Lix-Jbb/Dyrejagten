@@ -13,38 +13,21 @@ export default function CameraScreen() {
   const router = useRouter();
   const { currentCapture, setCurrentCapture } = useApp();
 
-  const handlePickerResult = async (result: ImagePicker.ImagePickerResult) => {
-    if (result.canceled) {
-      return;
-    }
-
-    const asset = result.assets[0];
-    if (!asset.base64) {
-      Alert.alert("Billedet mangler data", "Prøv igen med et andet billede.");
-      return;
-    }
-
-    setCurrentCapture({
-      uri: asset.uri,
-      base64: asset.base64,
-      mimeType: asset.mimeType ?? "image/jpeg",
-      capturedAt: new Date().toISOString(),
-    });
-  };
-
   const openCamera = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (permission.status !== "granted") {
       Alert.alert("Kamera kræver tilladelse", "Du kan også vælge et billede fra din kamerarulle.");
       return;
     }
-    await handlePickerResult(
-      await ImagePicker.launchCameraAsync({
-        base64: true,
-        quality: 0.7,
-        mediaTypes: ["images"],
-      })
-    );
+    const result = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
+    if (!result.canceled && result.assets[0].base64) {
+      setCurrentCapture({
+        uri: result.assets[0].uri,
+        base64: result.assets[0].base64,
+        mimeType: result.assets[0].mimeType ?? "image/jpeg",
+        capturedAt: new Date().toISOString(),
+      });
+    }
   };
 
   const openLibrary = async () => {
@@ -53,47 +36,34 @@ export default function CameraScreen() {
       Alert.alert("Galleri kræver tilladelse", "Tillad adgang for at vælge et billede.");
       return;
     }
-    await handlePickerResult(
-      await ImagePicker.launchImageLibraryAsync({
-        base64: true,
-        quality: 0.7,
-        mediaTypes: ["images"],
-      })
-    );
+    const result = await ImagePicker.launchImageLibraryAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
+    if (!result.canceled && result.assets[0].base64) {
+      setCurrentCapture({
+        uri: result.assets[0].uri,
+        base64: result.assets[0].base64,
+        mimeType: result.assets[0].mimeType ?? "image/jpeg",
+        capturedAt: new Date().toISOString(),
+      });
+    }
   };
 
   return (
-    <Screen title="TAG ET BILLEDE" subtitle="Kom tæt på, få dyret i fokus, og tag billedet fra siden.">
+    <Screen title="Brug dette billede?" subtitle="Hvis ja, så undersøger Dyrejagten billedet.">
       <GlassCard>
         {currentCapture ? (
           <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.preview} />
         ) : (
           <View style={styles.placeholder}>
             <Ionicons color={theme.primary} name="camera" size={42} />
-            <Text style={styles.placeholderTitle}>Klar til et nyt dyr?</Text>
-            <Text style={styles.placeholderText}>{"Tag et tydeligt billede, så kan AI'en bedre gætte dyret."}</Text>
+            <Text style={styles.placeholderTitle}>Intet billede valgt endnu</Text>
+            <Text style={styles.placeholderText}>Tag et nyt billede eller vælg et fra biblioteket.</Text>
           </View>
         )}
       </GlassCard>
 
-      <GlassCard>
-        <View style={styles.tipRow}>
-          <Ionicons color={theme.primary} name="radio-button-on" size={18} />
-          <Text style={styles.tipText}>Kom tæt på uden at forstyrre dyret.</Text>
-        </View>
-        <View style={styles.tipRow}>
-          <Ionicons color={theme.primary} name="radio-button-on" size={18} />
-          <Text style={styles.tipText}>Sørg for fokus på kroppen og kendetegn.</Text>
-        </View>
-        <View style={styles.tipRow}>
-          <Ionicons color={theme.primary} name="radio-button-on" size={18} />
-          <Text style={styles.tipText}>Tag gerne flere vinkler, hvis arten er svær at se.</Text>
-        </View>
-      </GlassCard>
-
-      <NatureButton label="Tag billede" onPress={openCamera} icon={<Ionicons color="#f7fbf5" name="camera-outline" size={20} />} />
-      <NatureButton label="Vælg et billede" onPress={openLibrary} variant="secondary" icon={<Ionicons color="#fffdf6" name="images-outline" size={20} />} />
-      <NatureButton label="Se hvad det ligner" onPress={() => router.push("/analyze" as never)} disabled={!currentCapture} />
+      <NatureButton label="Gem" onPress={() => router.push("/analyze" as never)} disabled={!currentCapture} />
+      <NatureButton label="Tag nyt billede" onPress={openCamera} variant="secondary" />
+      <NatureButton label="Vælg billede" onPress={openLibrary} variant="ghost" />
     </Screen>
   );
 }
@@ -124,17 +94,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: theme.dark,
     textAlign: "center",
-  },
-  tipRow: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-  },
-  tipText: {
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 21,
-    color: theme.dark,
-    fontWeight: "700",
   },
 });
