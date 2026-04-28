@@ -36,7 +36,7 @@ export default function ResultScreen() {
   const saveToDiary = async () => {
     try {
       const finding = await saveCurrentFinding({ note: "" });
-      Alert.alert("Flot fund!", `${suggestion.danishName} er nu i din dyrebog.`);
+      Alert.alert("Gemt", `${suggestion.danishName} er nu i din dyrebog.`);
       await loadSpecies(slugifyLatinName(finding.latinName));
       router.replace(`/species/${slugifyLatinName(finding.latinName)}` as never);
     } catch (error) {

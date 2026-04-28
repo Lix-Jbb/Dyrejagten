@@ -61,9 +61,9 @@ export default function CameraScreen() {
         )}
       </GlassCard>
 
-      <NatureButton label="Gem" onPress={() => router.push("/analyze" as never)} disabled={!currentCapture} />
+      <NatureButton label="Brug billede" onPress={() => router.push("/analyze" as never)} disabled={!currentCapture} />
       <NatureButton label="Tag nyt billede" onPress={openCamera} variant="secondary" />
-      <NatureButton label="Vælg billede" onPress={openLibrary} variant="ghost" />
+      <NatureButton label="Kig i fotoalbum" onPress={openLibrary} variant="ghost" />
     </Screen>
   );
 }

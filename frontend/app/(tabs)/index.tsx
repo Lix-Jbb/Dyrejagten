@@ -83,7 +83,7 @@ export default function HomeScreen() {
           onPress={openCamera}
         />
         <NatureButton
-          label="Vælg billede"
+          label="Kig i fotoalbum"
           icon={<Ionicons color="#fffdf6" name="images-outline" size={20} />}
           onPress={openLibrary}
           variant="secondary"

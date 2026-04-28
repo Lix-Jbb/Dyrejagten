@@ -23,6 +23,8 @@ const LOADING_STEPS = [
   "Næsten færdig... dyret gemmer sig ikke meget længere.",
 ];
 
+const waitFourSeconds = () => new Promise((resolve) => setTimeout(resolve, 4000));
+
 export default function AnalyzeScreen() {
   const router = useRouter();
   const { busy, currentCapture, error, runAnalysis, setError } = useApp();
@@ -38,7 +40,7 @@ export default function AnalyzeScreen() {
       setStepIndex((value) => (value + 1) % LOADING_STEPS.length);
     }, 1500);
 
-    runAnalysis()
+    Promise.all([runAnalysis(), waitFourSeconds()])
       .then(() => router.replace("/result" as never))
       .catch(() => null);
 
@@ -67,7 +69,7 @@ export default function AnalyzeScreen() {
             loading={busy}
             onPress={() => {
               setError(null);
-              runAnalysis()
+              Promise.all([runAnalysis(), waitFourSeconds()])
                 .then(() => router.replace("/result" as never))
                 .catch(() => null);
             }}

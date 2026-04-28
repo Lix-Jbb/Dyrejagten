@@ -48,6 +48,7 @@ Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller v
 - Gjort dyrebogen dynamisk pr. art, så samme art samles på samme profil med swipe mellem billeder
 - Tilføjet skjult slet-funktion via diskret tre-prik-menu på dyreprofilen
 - Justeret farvepaletten til rolig naturgrøn Dyrejagten-stil
+- Ændret billedbekræftelsen til "Brug billede", ændret "Vælg billede" til "Kig i fotoalbum", fjernet "Flot fund"-tekster og givet analyseskærmen minimum 4 sekunders tænketid
 
 ## Prioritized Backlog
 ### P0

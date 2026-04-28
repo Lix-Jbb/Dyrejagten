@@ -33,7 +33,7 @@ export default function SaveFindingScreen() {
   const save = async () => {
     try {
       await saveCurrentFinding({ note: "", chosenSuggestion });
-      Alert.alert("Fund gemt", `Flot fund! ${selectedName} er nu i din samling.`);
+      Alert.alert("Fund gemt", `${selectedName} er nu i din samling.`);
       router.replace("/(tabs)/collection" as never);
     } catch (error) {
       Alert.alert("Kunne ikke gemme", error instanceof Error ? error.message : "Prøv igen.");
