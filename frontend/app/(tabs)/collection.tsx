@@ -1,17 +1,25 @@
-import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { FilterPill, GlassCard, SectionHeading } from "../../components/Cards";
 import { Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
+import { normalizeCategory } from "../../lib/categoryUtils";
 import { slugifyLatinName } from "../../lib/api";
 
 export default function CollectionScreen() {
   const router = useRouter();
+  const { category: routeCategory } = useLocalSearchParams<{ category?: string }>();
   const { findings, categories } = useApp();
   const [selectedCategory, setSelectedCategory] = useState("Alle");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (routeCategory) {
+      setSelectedCategory(String(routeCategory));
+    }
+  }, [routeCategory]);
 
   const grouped = useMemo(() => {
     const groupedMap = new Map<string, (typeof findings)[number][]>();
@@ -25,7 +33,7 @@ export default function CollectionScreen() {
     return Array.from(groupedMap.entries()).map(([, items]) => {
       const sorted = [...items].sort((a, b) => b.capturedAt.localeCompare(a.capturedAt));
       return {
-        latest: sorted[0],
+        latest: { ...sorted[0], category: normalizeCategory(sorted[0].category) },
         count: sorted.length,
       };
     });
@@ -71,7 +79,7 @@ export default function CollectionScreen() {
           ))}
         </View>
       </ScrollView>
-      <SectionHeading title="Dine dyr" />
+      <SectionHeading title="Mine dyr" />
 
       {filtered.length ? (
         filtered.map((entry) => (
@@ -83,6 +91,7 @@ export default function CollectionScreen() {
                 <Text style={styles.meta}>{entry.latest.category}</Text>
                 <Text style={styles.meta}>Fundet {entry.count} gange</Text>
                 <Text style={styles.meta}>Senest fundet {entry.latest.dateLabel}</Text>
+                {entry.latest.municipality ? <Text style={styles.meta}>By: {entry.latest.municipality}</Text> : null}
                 <FilterPill
                   active
                   label="Se dyret"

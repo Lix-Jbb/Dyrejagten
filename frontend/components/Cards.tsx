@@ -32,18 +32,30 @@ export function SectionHeading({ title, action }: { title: string; action?: Reac
   );
 }
 
-export function ProgressBar({ label, progress, helper }: { label: string; progress: number; helper: string }) {
-  return (
+export function ProgressBar({
+  label,
+  progress,
+  helper,
+  onPress,
+}: {
+  label: string;
+  progress: number;
+  helper: string;
+  onPress?: () => void;
+}) {
+  const content = (
     <View style={styles.progressBlock}>
       <View style={styles.rowBetween}>
         <Text style={styles.progressLabel}>{label}</Text>
         <Text style={styles.helper}>{helper}</Text>
       </View>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: `${Math.max(progress * 100, 6)}%` }]} />
+        <View style={[styles.fill, { width: progress <= 0 ? "0%" : `${progress * 100}%` }]} />
       </View>
     </View>
   );
+
+  return onPress ? <Pressable onPress={onPress}>{content}</Pressable> : content;
 }
 
 export function FindingCard({ finding, onPress }: { finding: Finding; onPress?: () => void }) {

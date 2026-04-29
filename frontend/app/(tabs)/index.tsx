@@ -64,15 +64,17 @@ export default function HomeScreen() {
         </Pressable>
       }
     >
-      <GlassCard>
-        <Text style={styles.statusLine}>Du har fundet {dashboard?.totalFindings ?? 0} dyr</Text>
-      </GlassCard>
+      <Pressable onPress={() => router.push("/(tabs)/collection" as never)}>
+        <GlassCard>
+          <Text style={styles.statusLine}>Du har fundet {dashboard?.totalFindings ?? 0} dyr</Text>
+        </GlassCard>
+      </Pressable>
 
       <GlassCard delay={100}>
         <Text style={styles.heroKicker}>FIND ET DYR</Text>
-        <View style={styles.heroCircle}>
+        <Pressable onPress={openCamera} style={styles.heroCircle}>
           <Ionicons color="#fffdf6" name="camera" size={54} />
-        </View>
+        </Pressable>
         <Text style={styles.heroTitle}>Find et dyr</Text>
         <NatureButton
           label="Tag billede"

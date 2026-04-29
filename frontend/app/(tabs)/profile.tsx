@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Switch, Text, View } from "react-native";
 
 import { GlassCard, SectionHeading, StatCard } from "../../components/Cards";
 import { Screen, theme } from "../../components/Screen";
@@ -16,10 +16,10 @@ export default function ProfileTabScreen() {
   const confirmDeleteAllData = () => {
     Alert.alert(
       "Slet alle data?",
-      "Hvis du sletter, vil alle dyr du har fundet forsvinde fra din dyrebog.",
+      "Er du sikker på, at du vil slette al data og starte forfra?",
       [
-        { text: "Annuller", style: "cancel" },
-        { text: "Slet alt", style: "destructive", onPress: () => resetAllData() },
+        { text: "Nej", style: "cancel" },
+        { text: "Ja", style: "destructive", onPress: () => resetAllData() },
       ]
     );
   };
@@ -48,8 +48,14 @@ export default function ProfileTabScreen() {
             value={profile?.allowLocation ?? false}
           />
         </View>
-        <TextInput editable={false} style={styles.infoBox} value="Privatliv: Dine fund bliver i din egen dyrebog." />
-        <TextInput editable={false} style={styles.infoBox} value="Om Dyrejagten: En enkel app til at finde dyr i Danmark." />
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>Privatliv</Text>
+          <Text style={styles.infoText}>Dine fund bliver i din egen dyrebog.</Text>
+        </View>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>Om Dyrejagten</Text>
+          <Text style={styles.infoText}>En enkel app til at finde dyr i Danmark.</Text>
+        </View>
       </GlassCard>
 
       <Pressable onPress={confirmDeleteAllData} style={styles.deleteLink}>
@@ -76,13 +82,22 @@ const styles = StyleSheet.create({
     color: theme.dark,
   },
   infoBox: {
-    minHeight: 52,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: theme.dark,
     backgroundColor: "#fffdf6",
     paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 6,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: theme.dark,
+  },
+  infoText: {
     fontSize: 15,
+    lineHeight: 21,
     color: theme.dark,
   },
   deleteLink: {

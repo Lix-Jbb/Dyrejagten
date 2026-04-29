@@ -17,6 +17,7 @@ type ScreenProps = {
   title?: string;
   subtitle?: string;
   scroll?: boolean;
+  bottomAction?: React.ReactNode;
   leftAction?: React.ReactNode;
   centerTitle?: boolean;
   rightAction?: React.ReactNode;
@@ -27,6 +28,7 @@ export function Screen({
   title,
   subtitle,
   scroll = true,
+  bottomAction,
   leftAction,
   centerTitle = false,
   rightAction,
@@ -55,7 +57,7 @@ export function Screen({
       >
         {scroll ? (
           <ScrollView
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, bottomAction ? styles.scrollContentWithBottomAction : null]}
             showsVerticalScrollIndicator={false}
           >
             {content}
@@ -63,6 +65,7 @@ export function Screen({
         ) : (
           content
         )}
+        {bottomAction ? <View style={styles.bottomAction}>{bottomAction}</View> : null}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -139,6 +142,9 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     paddingBottom: 24,
   },
+  scrollContentWithBottomAction: {
+    paddingBottom: 120,
+  },
   inner: {
     paddingHorizontal: 18,
     gap: 18,
@@ -207,5 +213,11 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.6,
+  },
+  bottomAction: {
+    position: "absolute",
+    left: 18,
+    right: 18,
+    bottom: 18,
   },
 });

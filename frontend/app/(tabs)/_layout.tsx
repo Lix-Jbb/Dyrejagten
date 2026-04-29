@@ -27,6 +27,7 @@ export default function TabLayout() {
             index: "leaf-outline",
             collection: "book-outline",
             score: "ribbon-outline",
+            map: "map-outline",
             profile: "person-outline",
             camera: "camera-outline",
           };
@@ -38,7 +39,8 @@ export default function TabLayout() {
       <Tabs.Screen name="camera" options={{ href: null }} />
       <Tabs.Screen name="collection" options={{ title: "Dyrebog", tabBarButtonTestID: "tab-book" }} />
       <Tabs.Screen name="score" options={{ title: "Badges", tabBarButtonTestID: "tab-badges" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profil", tabBarButtonTestID: "tab-profile" }} />
+      <Tabs.Screen name="map" options={{ title: "Kort", tabBarButtonTestID: "tab-map" }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }
