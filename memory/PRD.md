@@ -1,4 +1,4 @@
-# NaturFinder PRD
+# Dyrejagten PRD
 
 ## Problem Statement
 Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller vælge billeder af dyr i Danmark, få AI-analyse på dansk, gemme fund i personlig samling og motiveres via point, badges, kategorier og kort.
@@ -50,28 +50,37 @@ Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller v
 - Justeret farvepaletten til rolig naturgrøn Dyrejagten-stil
 - Ændret billedbekræftelsen til "Brug billede", ændret "Vælg billede" til "Kig i fotoalbum", fjernet "Flot fund"-tekster og givet analyseskærmen minimum 4 sekunders tænketid
 
+### 2026-04-29
+- Resultatskærm opdateret med "Vi"-ordlyd, manuel tekstindtastning af dyrenavn og grøn gem-popup
+- Sticky tilbage-knapper tilføjet på artsdetalje og separat kortskærm
+- Artsdetalje udvidet med "Her fandt jeg dyret", by/område-visning og manuel stedredigering med geokodning
+- Kategori-normalisering gjort robust på frontend og backend, så fx "Leddyr" matcher "Edderkopper og smådyr" i Dyrebog, badges, dashboard og kort
+- Badges-skærm justeret med tydelig tidslinje og stabilt kategori-hop til filtreret Dyrebog
+- Kortmarkører gjort tydeligere og beskyttet mod at forsvinde ved upræcise stednavne
+
 ## Prioritized Backlog
 ### P0
-- Verificér komplet web-preview upload-flow end-to-end efter preview-tunnel er stabil
+- Verificér komplet upload -> analyse -> resultat -> gem flow end-to-end i web-preview, da Expo web picker stadig er svær at automatisere stabilt
 - Lad brugerens egen OpenAI-nøgle overtage igen, når den har aktiv quota
 - Finpuds endnu flere børneflader (fx endnu tydeligere badge-fejringer og silhuetter i dyrebogen)
 
 ### P1
 - Eksport af fund
 - Bedre map-visualisering med ægte interaktivt kort på native
-- Mere robust web upload-testbarhed for expo-image-picker
+- Flere badges og længere challenge-system, så børn ikke løber tør for mål
 
 ### P2
 - Push-notifikationer for badges
 - Sæsonmål og månedlige udfordringer
 - Offline caching og hurtigere billedbehandling
+- Offline AI / lydgenkendelse af fugle
 
 ## Features Remaining by Priority
 - **P0:** Endelig E2E-verificering af billede -> analyse -> gem -> samling via preview
-- **P1:** Data-eksport, rigere profilindstillinger, native map-forbedring
-- **P2:** Påmindelser, challenges, mere gamification-dybde
+- **P1:** Data-eksport, rigere profilindstillinger, native map-forbedring, flere badges
+- **P2:** Påmindelser, challenges, mere gamification-dybde, offline-funktioner
 
 ## Next Tasks List
-1. Skift tilbage til brugerens egen OpenAI-nøgle, når quota er aktiv
-2. Kør ny fuld browser-test af galleri-upload og gem-fund flow
-3. Tilføj eksport af fund og flere profilvalg
+1. Kør ny fuld browser-test af galleri-upload og gem-fund flow, når web-preview upload kan automatiseres stabilt
+2. Skift tilbage til brugerens egen OpenAI-nøgle, når quota er aktiv
+3. Tilføj eksport af fund, flere badges og flere profilvalg

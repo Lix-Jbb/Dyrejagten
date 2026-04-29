@@ -113,8 +113,8 @@ export default function SpeciesScreen() {
 
       await updateFindingLocation(activeFinding.id, {
         municipality: typedPlace,
-        latitude: bestMatch?.latitude ?? null,
-        longitude: bestMatch?.longitude ?? null,
+        latitude: bestMatch?.latitude ?? activeFinding.latitude ?? null,
+        longitude: bestMatch?.longitude ?? activeFinding.longitude ?? null,
       });
 
       await refreshData();
@@ -126,7 +126,9 @@ export default function SpeciesScreen() {
         "Stedet er gemt",
         bestMatch
           ? `Nu står der ${typedPlace} på fundet, og kortet er opdateret.`
-          : `Nu står der ${typedPlace} på fundet. Kortet får en prik, når stedet kan findes mere præcist.`
+          : activeFinding.latitude != null && activeFinding.longitude != null
+            ? `Nu står der ${typedPlace} på fundet. Den gamle kortprik bliver stående, indtil vi kan finde det nye sted mere præcist.`
+            : `Nu står der ${typedPlace} på fundet. Kortet får en prik, når stedet kan findes mere præcist.`
       );
     } catch (error) {
       Alert.alert("Kunne ikke gemme sted", error instanceof Error ? error.message : "Prøv igen om lidt.");

@@ -36,8 +36,8 @@ export default function OnboardingScreen() {
 
   return (
     <Screen
-      title="Velkommen til NaturFinder"
-      subtitle="Tag billeder af dyr i Danmark, få et ærligt AI-bud og byg din egen dyresamling."
+      title="Velkommen til Dyrejagten"
+      subtitle="Tag billeder af dyr i Danmark, få et ærligt bud og byg din egen dyresamling."
     >
       <GlassCard>
         <View style={styles.hero}>
@@ -46,7 +46,7 @@ export default function OnboardingScreen() {
           </View>
           <Text style={styles.heroTitle}>En spændende dyredagbog til nysgerrige opdagere</Text>
           <Text style={styles.heroText}>
-            {"AI'en kan tage fejl, især når arter ligner hinanden. Derfor viser appen altid usikkerhed og foreslår et nyt billede, hvis det er nødvendigt."}
+            {"Vi kan tage fejl, især når dyr ligner hinanden. Derfor viser appen altid ærlig tvivl og foreslår et nyt billede, hvis det er nødvendigt."}
           </Text>
         </View>
         <View style={styles.statsRow}>

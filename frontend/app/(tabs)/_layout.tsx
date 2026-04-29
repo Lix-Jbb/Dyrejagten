@@ -1,8 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
+import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { Tabs } from "expo-router";
 import React from "react";
+import { Pressable } from "react-native";
 
 import { theme } from "../../components/Screen";
+
+function TabButton({ testID, ...props }: BottomTabBarButtonProps & { testID: string }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={props.accessibilityState}
+      onLongPress={props.onLongPress}
+      onPress={props.onPress}
+      style={props.style}
+      testID={testID}
+    >
+      {props.children}
+    </Pressable>
+  );
+}
 
 export default function TabLayout() {
   return (
@@ -35,11 +52,11 @@ export default function TabLayout() {
         },
       })}
     >
-      <Tabs.Screen name="index" options={{ title: "Hjem", tabBarButtonTestID: "tab-home" }} />
+      <Tabs.Screen name="index" options={{ title: "Hjem", tabBarButton: (props) => <TabButton {...props} testID="tab-home" /> }} />
       <Tabs.Screen name="camera" options={{ href: null }} />
-      <Tabs.Screen name="collection" options={{ title: "Dyrebog", tabBarButtonTestID: "tab-book" }} />
-      <Tabs.Screen name="score" options={{ title: "Badges", tabBarButtonTestID: "tab-badges" }} />
-      <Tabs.Screen name="map" options={{ title: "Kort", tabBarButtonTestID: "tab-map" }} />
+      <Tabs.Screen name="collection" options={{ title: "Dyrebog", tabBarButton: (props) => <TabButton {...props} testID="tab-book" /> }} />
+      <Tabs.Screen name="score" options={{ title: "Badges", tabBarButton: (props) => <TabButton {...props} testID="tab-badges" /> }} />
+      <Tabs.Screen name="map" options={{ title: "Kort", tabBarButton: (props) => <TabButton {...props} testID="tab-map" /> }} />
       <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );

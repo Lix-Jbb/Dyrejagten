@@ -110,22 +110,31 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Tilføjede kategori-normalisering for analyse, gem, dashboard, badges, art og kort så fx 'Leddyr' bliver til 'Edderkopper og smådyr'. Bekræftet via backend-smoketest."
+      - working: true
+        agent: "testing"
+        comment: "Regressionstest bestod for kategori-normalisering og filter-match."
   - task: "Ret sted på fund og kortdata"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Tilføjede PATCH /api/findings/{finding_id} til redigering af municipality/lat/lon. Bekræftet med save + patch + map endpoint."
+      - working: false
+        agent: "testing"
+        comment: "Geocode-miss kunne fjerne eksisterende koordinater og dermed kortprik."
+      - working: true
+        agent: "main"
+        comment: "Rettet så eksisterende koordinater bevares, hvis geokodning ikke finder nyt sted. Selvtestet med upræcist stednavn og marker blev bevaret."
 frontend:
   - task: "Resultatskærm med manuel navnerettelse og grøn gem-popup"
     implemented: true
@@ -144,37 +153,49 @@ frontend:
     file: "/app/frontend/app/species/[slug].tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Tilføjede sticky tilbage-knap, map-genvej, stedinput, Gem sted-knap og by/område-visning. Verificeret i preview med seeded testfund."
+      - working: false
+        agent: "testing"
+        comment: "Gem sted kunne nulstille koordinater ved upræcist stednavn."
+      - working: true
+        agent: "main"
+        comment: "Rettet og selvtestet i preview + backend. Stednavn kan ændres uden at miste eksisterende kortprik."
   - task: "Kortskærm og synlige markører"
     implemented: true
     working: true
     file: "/app/frontend/app/map.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Tilføjede sticky tilbage-knap og gjorde markører tydeligere på Danmarkskortet. Verificeret i preview efter expo-restart."
+      - working: true
+        agent: "main"
+        comment: "Bekræftet igen efter markørforbedring og sted-opdatering. Kortet viser nu tydelig prik i preview."
   - task: "Badges-tidslinje og kategori-hop"
     implemented: true
     working: true
     file: "/app/frontend/app/(tabs)/score.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Sikrede BADGES-visning, tidslinje-overskrift, klikbare kategori-bars og korrekt kategori for 'Andre dyr i Danmark'. Kræver hurtig UI-verificering."
+      - working: true
+        agent: "testing"
+        comment: "Badges-tidslinje og kategori-hop til filtreret Dyrebog blev valideret i preview."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: true
 test_plan:
   current_focus:
@@ -188,3 +209,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Frontend og backend er opdateret. Main agent har selvtestet backend-save/filter/map samt preview for badges/home, artsdetalje og kort. Test særligt resultatskærmens nye manuelt-navn-flow og grønne popup, da det kræver et aktivt analyseflow i UI."
+  - agent: "main"
+    message: "Efter iteration_4 blev stedredigering rettet, så eksisterende koordinater bevares ved upræcis geokodning. Tabs bruger nu custom tab-knapper, og preview viser kun én `tab-badges` node. Resultatskærmens komplette upload->analyse->popup flow er stadig ikke automatiseret i web preview, men komponenterne er implementeret." 
