@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Modal, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { GlassCard } from "../components/Cards";
@@ -17,6 +17,12 @@ export default function ResultScreen() {
   const [savedFinding, setSavedFinding] = useState<Finding | null>(null);
 
   const suggestion = currentAnalysis?.primarySuggestion;
+  const trimmedManualName = manualName.trim();
+  const resultSubtitle = !suggestion
+    ? "Der er ikke et aktivt fund at vise endnu."
+    : trimmedManualName
+      ? `Vi gemmer navnet som ${trimmedManualName}.`
+      : `Det ligner en ${suggestion.danishName.toLowerCase()}.`;
 
   useEffect(() => {
     setManualName("");
@@ -35,21 +41,12 @@ export default function ResultScreen() {
   }
 
   const isUnknown = currentAnalysis.shouldAskForNewPhoto && suggestion.confidenceScore < 0.45;
-  const trimmedManualName = manualName.trim();
   const certaintyLabel =
     suggestion.confidenceScore >= 0.8
       ? "Vi tror meget på det her bud"
       : suggestion.confidenceScore >= 0.55
         ? "Vi tror, det er den her"
         : "Vi er lidt i tvivl, men det her er vores bedste bud";
-
-  const resultSubtitle = useMemo(
-    () =>
-      trimmedManualName
-        ? `Vi gemmer navnet som ${trimmedManualName}.`
-        : `Det ligner en ${suggestion.danishName.toLowerCase()}.`,
-    [suggestion.danishName, trimmedManualName]
-  );
 
   const saveToDiary = async () => {
     try {
