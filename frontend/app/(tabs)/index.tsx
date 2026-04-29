@@ -60,6 +60,7 @@ export default function HomeScreen() {
     <Screen
       title="Dyrejagten"
       subtitle="Tag et billede af et dyr, og gem det i din egen dyrebog."
+      centerTitle
       rightAction={
         <Pressable onPress={() => router.push("/(tabs)/profile" as never)} style={styles.profileButton}>
           <Ionicons color={theme.dark} name="person-outline" size={22} />

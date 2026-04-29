@@ -17,19 +17,30 @@ type ScreenProps = {
   title?: string;
   subtitle?: string;
   scroll?: boolean;
+  leftAction?: React.ReactNode;
+  centerTitle?: boolean;
   rightAction?: React.ReactNode;
 };
 
-export function Screen({ children, title, subtitle, scroll = true, rightAction }: ScreenProps) {
+export function Screen({
+  children,
+  title,
+  subtitle,
+  scroll = true,
+  leftAction,
+  centerTitle = false,
+  rightAction,
+}: ScreenProps) {
   const content = (
     <Animated.View entering={FadeInDown.duration(450)} style={styles.inner}>
       {(title || subtitle || rightAction) && (
         <View style={styles.header}>
-          <View style={styles.headerText}>
-            {title ? <Text style={styles.title}>{title}</Text> : null}
-            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          <View style={styles.headerSide}>{leftAction}</View>
+          <View style={[styles.headerText, centerTitle && styles.headerTextCentered]}>
+            {title ? <Text style={[styles.title, centerTitle && styles.titleCentered]}>{title}</Text> : null}
+            {subtitle ? <Text style={[styles.subtitle, centerTitle && styles.subtitleCentered]}>{subtitle}</Text> : null}
           </View>
-          {rightAction}
+          <View style={styles.headerSide}>{rightAction}</View>
         </View>
       )}
       {children}
@@ -142,15 +153,29 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 6,
   },
+  headerTextCentered: {
+    alignItems: "center",
+  },
+  headerSide: {
+    width: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   title: {
     fontSize: 34,
     fontWeight: "900",
     color: theme.dark,
   },
+  titleCentered: {
+    textAlign: "center",
+  },
   subtitle: {
     fontSize: 17,
     lineHeight: 24,
     color: theme.dark,
+  },
+  subtitleCentered: {
+    textAlign: "center",
   },
   button: {
     minHeight: 58,
