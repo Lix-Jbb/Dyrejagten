@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
-import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 
 import { GlassCard, SectionHeading, StatCard } from "../../components/Cards";
-import { NatureButton, Screen, theme } from "../../components/Screen";
+import { Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
 
 export default function ProfileTabScreen() {
@@ -12,6 +12,17 @@ export default function ProfileTabScreen() {
     () => new Set(findings.map((finding) => finding.capturedAt.slice(0, 10))).size,
     [findings]
   );
+
+  const confirmDeleteAllData = () => {
+    Alert.alert(
+      "Slet alle data?",
+      "Hvis du sletter, vil alle dyr du har fundet forsvinde fra din dyrebog.",
+      [
+        { text: "Annuller", style: "cancel" },
+        { text: "Slet alt", style: "destructive", onPress: () => resetAllData() },
+      ]
+    );
+  };
 
   return (
     <Screen title="Profil" subtitle="Din egen side i Dyrejagten.">
@@ -41,7 +52,9 @@ export default function ProfileTabScreen() {
         <TextInput editable={false} style={styles.infoBox} value="Om Dyrejagten: En enkel app til at finde dyr i Danmark." />
       </GlassCard>
 
-      <NatureButton label="Slet alle data" onPress={resetAllData} variant="ghost" />
+      <Pressable onPress={confirmDeleteAllData} style={styles.deleteLink}>
+        <Text style={styles.deleteText}>Slet alle data</Text>
+      </Pressable>
     </Screen>
   );
 }
@@ -71,5 +84,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 15,
     color: theme.dark,
+  },
+  deleteLink: {
+    alignSelf: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  deleteText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#8b3a2b",
+    textDecorationLine: "underline",
   },
 });
