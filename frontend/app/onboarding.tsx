@@ -37,14 +37,14 @@ export default function OnboardingScreen() {
   return (
     <Screen
       title="Velkommen til NaturFinder"
-      subtitle="Tag billeder af dyr i Danmark, få et ærligt AI-bud og byg din egen natur-samling."
+      subtitle="Tag billeder af dyr i Danmark, få et ærligt AI-bud og byg din egen dyresamling."
     >
       <GlassCard>
         <View style={styles.hero}>
           <View style={styles.iconWrap}>
             <Ionicons color="#f7fbf5" name="leaf" size={28} />
           </View>
-          <Text style={styles.heroTitle}>En venlig naturdagbog til nysgerrige opdagere</Text>
+          <Text style={styles.heroTitle}>En spændende dyredagbog til nysgerrige opdagere</Text>
           <Text style={styles.heroText}>
             {"AI'en kan tage fejl, især når arter ligner hinanden. Derfor viser appen altid usikkerhed og foreslår et nyt billede, hvis det er nødvendigt."}
           </Text>

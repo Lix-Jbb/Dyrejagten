@@ -21,7 +21,7 @@ export default function Index() {
       >
         <ActivityIndicator size="large" color={theme.primary} />
         <Text style={{ color: theme.dark, fontSize: 17, fontWeight: "700" }}>
-          Åbner din natur-samling...
+          Åbner din dyresamling...
         </Text>
       </View>
     );

@@ -7,6 +7,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { GlassCard } from "../../components/Cards";
 import { NatureButton, Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
+import { prepareCaptureAsset } from "../../lib/imageProcessing";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -18,17 +19,13 @@ export default function HomeScreen() {
     }, [refreshData])
   );
 
-  const handlePickedImage = (asset: ImagePicker.ImagePickerAsset) => {
-    if (!asset.base64) {
+  const handlePickedImage = async (asset: ImagePicker.ImagePickerAsset) => {
+    const prepared = await prepareCaptureAsset(asset);
+    if (!prepared) {
       Alert.alert("Billedet kunne ikke bruges", "Prøv et andet billede.");
       return;
     }
-    setCurrentCapture({
-      uri: asset.uri,
-      base64: asset.base64,
-      mimeType: asset.mimeType ?? "image/jpeg",
-      capturedAt: new Date().toISOString(),
-    });
+    setCurrentCapture(prepared);
     router.push("/(tabs)/camera" as never);
   };
 
@@ -40,7 +37,7 @@ export default function HomeScreen() {
     }
     const result = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
     if (!result.canceled) {
-      handlePickedImage(result.assets[0]);
+      await handlePickedImage(result.assets[0]);
     }
   };
 
@@ -52,7 +49,7 @@ export default function HomeScreen() {
     }
     const result = await ImagePicker.launchImageLibraryAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
     if (!result.canceled) {
-      handlePickedImage(result.assets[0]);
+      await handlePickedImage(result.assets[0]);
     }
   };
 
@@ -69,7 +66,6 @@ export default function HomeScreen() {
     >
       <GlassCard>
         <Text style={styles.statusLine}>Du har fundet {dashboard?.totalFindings ?? 0} dyr</Text>
-        <Text style={styles.statusLine}>{dashboard?.uniqueSpecies ?? 0} unikke arter</Text>
       </GlassCard>
 
       <GlassCard delay={100}>

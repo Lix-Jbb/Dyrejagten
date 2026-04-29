@@ -8,6 +8,7 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import { GlassCard } from "../../components/Cards";
 import { NatureButton, Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
+import { prepareCaptureAsset } from "../../lib/imageProcessing";
 
 export default function CameraScreen() {
   const router = useRouter();
@@ -20,13 +21,11 @@ export default function CameraScreen() {
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
-    if (!result.canceled && result.assets[0].base64) {
-      setCurrentCapture({
-        uri: result.assets[0].uri,
-        base64: result.assets[0].base64,
-        mimeType: result.assets[0].mimeType ?? "image/jpeg",
-        capturedAt: new Date().toISOString(),
-      });
+    if (!result.canceled) {
+      const prepared = await prepareCaptureAsset(result.assets[0]);
+      if (prepared) {
+        setCurrentCapture(prepared);
+      }
     }
   };
 
@@ -37,13 +36,11 @@ export default function CameraScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
-    if (!result.canceled && result.assets[0].base64) {
-      setCurrentCapture({
-        uri: result.assets[0].uri,
-        base64: result.assets[0].base64,
-        mimeType: result.assets[0].mimeType ?? "image/jpeg",
-        capturedAt: new Date().toISOString(),
-      });
+    if (!result.canceled) {
+      const prepared = await prepareCaptureAsset(result.assets[0]);
+      if (prepared) {
+        setCurrentCapture(prepared);
+      }
     }
   };
 

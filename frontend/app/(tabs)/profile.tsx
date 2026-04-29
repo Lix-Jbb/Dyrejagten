@@ -37,10 +37,6 @@ export default function ProfileTabScreen() {
             value={profile?.allowLocation ?? false}
           />
         </View>
-        <View style={styles.settingRow}>
-          <Text style={styles.label}>Notifikationer</Text>
-          <Switch trackColor={{ true: theme.primary }} value={false} />
-        </View>
         <TextInput editable={false} style={styles.infoBox} value="Privatliv: Dine fund bliver i din egen dyrebog." />
         <TextInput editable={false} style={styles.infoBox} value="Om Dyrejagten: En enkel app til at finde dyr i Danmark." />
       </GlassCard>

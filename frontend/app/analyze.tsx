@@ -38,7 +38,7 @@ export default function AnalyzeScreen() {
 
     const stepTimer = setInterval(() => {
       setStepIndex((value) => (value + 1) % LOADING_STEPS.length);
-    }, 1500);
+    }, 3000);
 
     Promise.all([runAnalysis(), waitFourSeconds()])
       .then(() => router.replace("/result" as never))

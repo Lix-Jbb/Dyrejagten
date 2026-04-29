@@ -46,7 +46,7 @@ export default function SpeciesScreen() {
   }
 
   const markers = speciesPreview.findings
-    .filter((finding) => finding.latitude && finding.longitude)
+    .filter((finding) => finding.latitude != null && finding.longitude != null)
     .map((finding) => ({
       id: finding.id,
       category: speciesPreview.category,
@@ -149,7 +149,11 @@ export default function SpeciesScreen() {
         {markers.length ? (
           <ScatterMap markers={markers} />
         ) : (
-          <Text style={styles.helper}>Lokation er ikke gemt for dette fund.</Text>
+          <Text style={styles.helper}>
+            {activeFinding?.municipality
+              ? `Lokation er gemt som ${activeFinding.municipality}, men der er ingen præcise kortprikker endnu.`
+              : "Lokation er ikke gemt for dette fund."}
+          </Text>
         )}
       </GlassCard>
 
