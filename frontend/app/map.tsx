@@ -1,19 +1,26 @@
 import React, { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 
 import { FilterPill, GlassCard, SectionHeading } from "../components/Cards";
+import { NatureButton } from "../components/Screen";
 import { ScatterMap } from "../components/ScatterMap";
 import { Screen, theme } from "../components/Screen";
 import { useApp } from "../context/AppContext";
 
 export default function MapScreen() {
+  const router = useRouter();
   const { categories, findings, loadMapMarkers, markers } = useApp();
   const [selectedCategory, setSelectedCategory] = useState("Alle");
 
   const latestMarkers = useMemo(() => markers.slice(0, 6), [markers]);
 
   return (
-    <Screen title="Kort" subtitle="Et roligt overblik over dine fund i Danmark. Sjældne arter vises kun omtrentligt.">
+    <Screen
+      title="Kort"
+      subtitle="Et roligt overblik over dine fund i Danmark. Sjældne arter vises kun omtrentligt."
+      bottomAction={<NatureButton label="Tilbage" onPress={() => router.back()} testID="map-back-button" variant="ghost" />}
+    >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.filters}>
           <FilterPill active={selectedCategory === "Alle"} label="Alle" onPress={() => { setSelectedCategory("Alle"); loadMapMarkers("Alle").catch(() => null); }} />
@@ -32,7 +39,7 @@ export default function MapScreen() {
       </ScrollView>
 
       <GlassCard>
-        <ScatterMap markers={markers} />
+        <ScatterMap markers={markers} testID="all-findings-map" />
       </GlassCard>
 
       <GlassCard>

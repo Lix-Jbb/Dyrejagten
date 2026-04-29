@@ -86,6 +86,12 @@ class SaveFindingRequest(BaseModel):
     analysis: AnalysisResponse
 
 
+class UpdateFindingRequest(BaseModel):
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    municipality: Optional[str] = None
+
+
 class Finding(BaseModel):
     id: str
     userId: str

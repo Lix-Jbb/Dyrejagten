@@ -101,14 +101,15 @@ export async function saveFinding(
   location?: { latitude?: number; longitude?: number; municipality?: string }
 ) {
   const selected = payload.chosenSuggestion;
+  const manualName = payload.customDanishName?.trim();
+  const hasManualName = Boolean(manualName);
   const mergedAnalysis: AnalysisResponse = {
     ...analysis,
     primarySuggestion: {
       ...analysis.primarySuggestion,
-      danishName:
-        payload.customDanishName?.trim() || selected?.danishName || analysis.primarySuggestion.danishName,
+      danishName: manualName || selected?.danishName || analysis.primarySuggestion.danishName,
       latinName:
-        payload.customLatinName?.trim() || selected?.latinName || analysis.primarySuggestion.latinName,
+        payload.customLatinName?.trim() || (manualName ? manualName : selected?.latinName || analysis.primarySuggestion.latinName),
       category: selected?.category || analysis.primarySuggestion.category,
       subcategory: selected?.subcategory || analysis.primarySuggestion.subcategory,
       confidenceScore: selected?.confidenceScore || analysis.primarySuggestion.confidenceScore,
@@ -124,10 +125,20 @@ export async function saveFinding(
       longitude: location?.longitude ?? null,
       municipality: location?.municipality ?? null,
       userNote: payload.note,
-      aiVerifiedStatus: "AI-vurderet",
+      aiVerifiedStatus: hasManualName ? "Navn rettet af mig" : "Vi har gættet",
       capturedAt: asset.capturedAt,
       analysis: mergedAnalysis,
     }),
+  });
+}
+
+export async function updateFindingLocation(
+  id: string,
+  payload: { latitude?: number | null; longitude?: number | null; municipality?: string | null }
+) {
+  return request<Finding>(`/findings/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
   });
 }
 

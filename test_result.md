@@ -101,3 +101,90 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Dyrejagten skal have manuelle navnerettelser på resultatskærmen, grøn gem-popup, sticky tilbage-knapper, fungerende kort med stedredigering samt robuste kategori-match og badges/tidslinje-opdateringer."
+backend:
+  - task: "Normaliser kategorier og bevar filtre"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Tilføjede kategori-normalisering for analyse, gem, dashboard, badges, art og kort så fx 'Leddyr' bliver til 'Edderkopper og smådyr'. Bekræftet via backend-smoketest."
+  - task: "Ret sted på fund og kortdata"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Tilføjede PATCH /api/findings/{finding_id} til redigering af municipality/lat/lon. Bekræftet med save + patch + map endpoint."
+frontend:
+  - task: "Resultatskærm med manuel navnerettelse og grøn gem-popup"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/result.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Skiftede AI-ordlyd til 'Vi', tilføjede tekstfelt til manuelt dyrenavn, sticky tilbage-knap og grøn succes-popup. Behøver UI-test med aktivt analyseflow."
+  - task: "Artsdetalje, kort og stedredigering"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/species/[slug].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Tilføjede sticky tilbage-knap, map-genvej, stedinput, Gem sted-knap og by/område-visning. Verificeret i preview med seeded testfund."
+  - task: "Kortskærm og synlige markører"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/map.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Tilføjede sticky tilbage-knap og gjorde markører tydeligere på Danmarkskortet. Verificeret i preview efter expo-restart."
+  - task: "Badges-tidslinje og kategori-hop"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/score.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Sikrede BADGES-visning, tidslinje-overskrift, klikbare kategori-bars og korrekt kategori for 'Andre dyr i Danmark'. Kræver hurtig UI-verificering."
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+test_plan:
+  current_focus:
+    - "Resultatskærm med manuel navnerettelse og grøn gem-popup"
+    - "Artsdetalje, kort og stedredigering"
+    - "Kortskærm og synlige markører"
+    - "Normaliser kategorier og bevar filtre"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+agent_communication:
+  - agent: "main"
+    message: "Frontend og backend er opdateret. Main agent har selvtestet backend-save/filter/map samt preview for badges/home, artsdetalje og kort. Test særligt resultatskærmens nye manuelt-navn-flow og grønne popup, da det kræver et aktivt analyseflow i UI."

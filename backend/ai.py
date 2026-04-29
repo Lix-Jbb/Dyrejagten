@@ -88,6 +88,7 @@ Analyser billedet af dyret og returnér præcis dette JSON-format uden ekstra te
 Regler:
 - Prioritér arter i Danmark.
 - confidenceScore skal være mellem 0 og 1.
+- category skal altid være præcis én af disse: Insekter, Fugle, Pattedyr, Krybdyr og padder, Fisk, Edderkopper og smådyr, Hav- og stranddyr, Andre dyr i Danmark.
 - Giv 1-3 alternative forslag ved usikkerhed.
 - Hvis du er meget usikker, så brug en lav confidenceScore og shouldAskForNewPhoto=true.
 - Brug venlig, enkel og naturformidlende tone.

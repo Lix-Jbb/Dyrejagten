@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -9,30 +10,42 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
+  useWindowDimensions,
   View,
 } from "react-native";
 
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 
 import { GlassCard, SectionHeading } from "../../components/Cards";
 import { ScatterMap } from "../../components/ScatterMap";
 import { NatureButton, Screen, theme } from "../../components/Screen";
 import { useApp } from "../../context/AppContext";
-import { deleteFinding, deleteSpeciesBySlug } from "../../lib/api";
+import { deleteFinding, deleteSpeciesBySlug, updateFindingLocation } from "../../lib/api";
 
 export default function SpeciesScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { loadSpecies, refreshData, speciesPreview, userId } = useApp();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [placeInput, setPlaceInput] = useState("");
+  const [savingPlace, setSavingPlace] = useState(false);
 
   useEffect(() => {
     if (slug) {
       loadSpecies(slug).catch(() => null);
     }
   }, [loadSpecies, slug]);
+
+  const activeFinding = speciesPreview?.findings[currentIndex] ?? speciesPreview?.findings[0] ?? null;
+
+  useEffect(() => {
+    setPlaceInput(activeFinding?.municipality ?? "");
+  }, [activeFinding?.id, activeFinding?.municipality]);
 
   if (!speciesPreview) {
     return (
@@ -44,6 +57,8 @@ export default function SpeciesScreen() {
       </Screen>
     );
   }
+
+  const heroWidth = Math.max(260, width - 84);
 
   const markers = speciesPreview.findings
     .filter((finding) => finding.latitude != null && finding.longitude != null)
@@ -57,8 +72,6 @@ export default function SpeciesScreen() {
       isApproximate: false,
       rarityStatus: speciesPreview.rarityStatus,
     }));
-
-  const activeFinding = speciesPreview.findings[currentIndex] ?? speciesPreview.findings[0];
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const nextIndex = Math.round(event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width);
@@ -82,12 +95,58 @@ export default function SpeciesScreen() {
     router.replace("/(tabs)/collection" as never);
   };
 
+  const saveEditedPlace = async () => {
+    if (!activeFinding) {
+      return;
+    }
+
+    const typedPlace = placeInput.trim();
+    if (!typedPlace) {
+      Alert.alert("Skriv et sted", "Skriv fx byen, stranden eller skoven, hvor du fandt dyret.");
+      return;
+    }
+
+    setSavingPlace(true);
+    try {
+      const matches = await Location.geocodeAsync(typedPlace);
+      const bestMatch = matches[0];
+
+      await updateFindingLocation(activeFinding.id, {
+        municipality: typedPlace,
+        latitude: bestMatch?.latitude ?? null,
+        longitude: bestMatch?.longitude ?? null,
+      });
+
+      await refreshData();
+      if (slug) {
+        await loadSpecies(String(slug));
+      }
+
+      Alert.alert(
+        "Stedet er gemt",
+        bestMatch
+          ? `Nu står der ${typedPlace} på fundet, og kortet er opdateret.`
+          : `Nu står der ${typedPlace} på fundet. Kortet får en prik, når stedet kan findes mere præcist.`
+      );
+    } catch (error) {
+      Alert.alert("Kunne ikke gemme sted", error instanceof Error ? error.message : "Prøv igen om lidt.");
+    } finally {
+      setSavingPlace(false);
+    }
+  };
+
   return (
     <Screen
       title={speciesPreview.danishName}
       subtitle="Dit dyrekort med billeder, korte fakta og steder, hvor du har fundet dyret."
+      bottomAction={
+        <View style={styles.bottomActions}>
+          <NatureButton label="Se alle fund på kort" onPress={() => router.push("/map" as never)} testID="species-open-map-button" variant="secondary" />
+          <NatureButton label="Tilbage" onPress={() => router.replace("/(tabs)/collection" as never)} testID="species-back-button" variant="ghost" />
+        </View>
+      }
       rightAction={
-        <Pressable onPress={() => setMenuOpen(true)} style={styles.menuButton}>
+        <Pressable onPress={() => setMenuOpen(true)} style={styles.menuButton} testID="species-menu-button">
           <Ionicons color={theme.dark} name="ellipsis-horizontal" size={16} />
         </Pressable>
       }
@@ -97,7 +156,7 @@ export default function SpeciesScreen() {
           <>
             <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onScroll}>
               {speciesPreview.findings.map((finding) => (
-                <Image contentFit="cover" key={finding.id} source={{ uri: finding.imageUrl }} style={styles.heroImage} />
+                <Image contentFit="cover" key={finding.id} source={{ uri: finding.imageUrl }} style={[styles.heroImage, { width: heroWidth }]} />
               ))}
             </ScrollView>
             <View style={styles.dotsRow}>
@@ -120,6 +179,8 @@ export default function SpeciesScreen() {
           <View style={styles.factCard}><Text style={styles.factLabel}>Størrelse</Text><Text style={styles.factValue}>{speciesPreview.size}</Text></View>
           <View style={styles.factCard}><Text style={styles.factLabel}>Levested</Text><Text style={styles.factValue}>{speciesPreview.habitat}</Text></View>
           <View style={styles.factCard}><Text style={styles.factLabel}>Almindelighed</Text><Text style={styles.factValue}>{speciesPreview.commonality}</Text></View>
+          <View style={styles.factCard}><Text style={styles.factLabel}>By / område</Text><Text style={styles.factValue} testID="species-location-city">{activeFinding?.municipality || "Ikke valgt endnu"}</Text></View>
+          <View style={styles.factCard}><Text style={styles.factLabel}>Fundet</Text><Text style={styles.factValue}>{activeFinding?.dateLabel || "Ukendt dato"}</Text></View>
         </View>
       </GlassCard>
 
@@ -145,11 +206,22 @@ export default function SpeciesScreen() {
       </GlassCard>
 
       <GlassCard>
-        <SectionHeading title="Kort over fund" />
+        <SectionHeading title="Her fandt jeg dyret" />
+        <Text style={styles.info}>By / område: {activeFinding?.municipality || "Du har ikke valgt et sted endnu."}</Text>
+        <Text style={styles.helper}>Hvis du valgte billedet senere, kan du rette stedet her.</Text>
+        <TextInput
+          onChangeText={setPlaceInput}
+          placeholder="Skriv sted eller by"
+          placeholderTextColor="#789080"
+          style={styles.locationInput}
+          testID="species-location-input"
+          value={placeInput}
+        />
+        <NatureButton label="Gem sted" loading={savingPlace} onPress={saveEditedPlace} testID="species-save-location-button" />
         {markers.length ? (
-          <ScatterMap markers={markers} />
+          <ScatterMap markers={markers} testID="species-location-map" />
         ) : (
-          <Text style={styles.helper}>
+          <Text style={styles.helper} testID="species-location-helper">
             {activeFinding?.municipality
               ? `Lokation er gemt som ${activeFinding.municipality}, men der er ingen præcise kortprikker endnu.`
               : "Lokation er ikke gemt for dette fund."}
@@ -157,15 +229,13 @@ export default function SpeciesScreen() {
         )}
       </GlassCard>
 
-      <NatureButton label="Tilbage" onPress={() => router.back()} variant="ghost" />
-
       <Modal animationType="fade" transparent visible={menuOpen}>
         <View style={styles.modalBackdrop}>
           <GlassCard>
             <SectionHeading title="Mere" />
-            <NatureButton label="Slet dette billede" onPress={deleteCurrentImage} variant="ghost" />
-            <NatureButton label="Slet dyret fra min dyrebog" onPress={deleteWholeSpecies} variant="ghost" />
-            <NatureButton label="Annuller" onPress={() => setMenuOpen(false)} />
+            <NatureButton label="Slet dette billede" onPress={deleteCurrentImage} testID="species-delete-image-button" variant="ghost" />
+            <NatureButton label="Slet dyret fra min dyrebog" onPress={deleteWholeSpecies} testID="species-delete-animal-button" variant="ghost" />
+            <NatureButton label="Annuller" onPress={() => setMenuOpen(false)} testID="species-close-menu-button" />
           </GlassCard>
         </View>
       </Modal>
@@ -205,6 +275,9 @@ const styles = StyleSheet.create({
     color: "#8b5a1f",
     fontWeight: "700",
   },
+  bottomActions: {
+    gap: 10,
+  },
   menuButton: {
     width: 30,
     height: 30,
@@ -217,7 +290,6 @@ const styles = StyleSheet.create({
     opacity: 0.68,
   },
   heroImage: {
-    width: 320,
     height: 260,
     borderRadius: 24,
     marginRight: 12,
@@ -259,6 +331,16 @@ const styles = StyleSheet.create({
   factValue: {
     fontSize: 15,
     fontWeight: "700",
+    color: theme.dark,
+  },
+  locationInput: {
+    minHeight: 54,
+    borderRadius: 18,
+    backgroundColor: "#fffdf6",
+    borderWidth: 2,
+    borderColor: theme.dark,
+    paddingHorizontal: 16,
+    fontSize: 16,
     color: theme.dark,
   },
   modalBackdrop: {

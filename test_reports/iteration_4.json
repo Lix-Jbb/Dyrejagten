@@ -1,0 +1,63 @@
+{
+  "summary": "Backend and mobile-web regression executed for Dyrejagten updates. Backend passes all core + new regression tests (manual naming, category normalization, location patch, map alias filter). Frontend seeded flows for species/map/badges pass, but result-screen manual-name save flow could not be fully reproduced in automation because image picker did not emit filechooser event in Expo web preview.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Tab controls",
+        "issue": "`tab-badges` resolved to duplicate DOM nodes in Playwright strict mode; requires `.first` workaround.",
+        "testID": "tab-badges",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Result screen manual rename + green save popup",
+        "issue": "Could not complete end-to-end UI run from image upload path in Expo web preview; `Kig i fotoalbum` did not emit filechooser event, so analysis->result state was not reached through automation.",
+        "affected_testIDs": ["btn-kig-i-fotoalbum", "result-manual-name-input", "result-success-modal"]
+      },
+      {
+        "flow": "Species location edit -> map marker continuity",
+        "issue": "Editing place from species view saved municipality but ended with null coordinates in data, making map marker disappear until coordinates were patched again.",
+        "affected_testIDs": ["species-location-input", "species-save-location-button", "all-findings-map"]
+      }
+    ],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_api_flows.py",
+    "/app/backend/tests/test_dyrejagten_regression.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/artifacts/iteration4_preview_smoke_mobile.jpeg",
+    "/app/test_reports/artifacts/iteration4_map_view.jpeg",
+    "/app/test_reports/artifacts/iteration4_badges_timeline_map.jpeg",
+    "/app/test_reports/artifacts/iteration4_map_with_marker.jpeg",
+    "/app/test_reports/artifacts/iteration4_ui_failure.jpeg"
+  ],
+  "action_items": [
+    "Verify image-picker upload path in Expo web preview so result-screen analyze state can be E2E-tested reliably.",
+    "In species place-save flow, preserve existing coordinates when geocoding returns no match, or clearly confirm marker removal behavior.",
+    "Investigate duplicate tab button rendering/testID duplication for stable strict-mode automation."
+  ],
+  "critical_code_review_comments": [
+    "frontend/lib/api.ts uses EXPO_PUBLIC_BACKEND_URL; project guideline specifies EXPO_BACKEND_URL / Constants extra contract.",
+    "species/[slug].tsx saveEditedPlace always writes latitude/longitude as null when geocode returns no match, which can unintentionally remove existing map markers."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_dyrejagten_regression.py",
+    "/app/test_reports/iteration_4.json"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "78%"
+  },
+  "seed_data_creation": "Used existing seeded user `dyrejagten-manual-test`; during validation, updated finding `7b286592-b7e9-4776-bb23-89e48c59c7f2` location to Aalborg + coordinates for map-marker verification.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Result-flow automation is currently blocked at image picker filechooser in Expo web. Seeded flows (collection->species->map and badges->collection) are reproducible with localStorage key `naturfinder-user-id=dyrejagten-manual-test`.",
+  "rca_of_issue": "RCA-1: Result flow remained untestable in web automation because Expo image picker interaction did not expose a filechooser event after clicking `Kig i fotoalbum`. RCA-2: In species place edit, geocode miss stores municipality with null coordinates (`bestMatch?.latitude ?? null`), so existing marker coordinates are overwritten and disappear from map endpoint/UI."
+}

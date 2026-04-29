@@ -17,7 +17,7 @@ export default function CollectionScreen() {
 
   useEffect(() => {
     if (routeCategory) {
-      setSelectedCategory(String(routeCategory));
+      setSelectedCategory(normalizeCategory(String(routeCategory)));
     }
   }, [routeCategory]);
 

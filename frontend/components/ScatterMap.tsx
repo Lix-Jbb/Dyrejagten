@@ -20,9 +20,9 @@ function project(latitude: number, longitude: number) {
   return { x: Math.max(18, Math.min(width - 18, x)), y: Math.max(20, Math.min(height - 20, y)) };
 }
 
-export function ScatterMap({ markers }: { markers: MapMarker[] }) {
+export function ScatterMap({ markers, testID }: { markers: MapMarker[]; testID?: string }) {
   return (
-    <View style={styles.wrap}>
+    <View style={styles.wrap} testID={testID}>
       <View style={styles.mapFrame}>
         <Svg width="100%" height="100%" viewBox="0 0 300 400">
           <Rect x={14} y={14} width={272} height={372} rx={34} fill="#e2efe2" />
@@ -35,19 +35,21 @@ export function ScatterMap({ markers }: { markers: MapMarker[] }) {
                 key={marker.id}
                 cx={x}
                 cy={y}
-                r={marker.isApproximate ? 8 : 6}
+                r={marker.isApproximate ? 9 : 7}
                 fill={marker.isApproximate ? "#d7a86e" : "#4a7c59"}
                 opacity={0.92}
+                stroke="#fffdf6"
+                strokeWidth={2.5}
               />
             );
           })}
         </Svg>
         <View style={styles.overlayLabel}>
-          <Text style={styles.labelTitle}>Danmark</Text>
-          <Text style={styles.labelText}>Simple fund-markører med privatlivsbeskyttelse</Text>
+          <Text style={styles.labelTitle}>Danmarkskort</Text>
+          <Text style={styles.labelText}>Dine fund vises som grønne prikker</Text>
         </View>
       </View>
-      <Text style={styles.helper}>
+      <Text style={styles.helper} testID={`${testID ?? "scatter-map"}-helper`}>
         Sjældne fund vises kun omtrentligt for at beskytte dyret og stedet.
       </Text>
     </View>
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
   },
   overlayLabel: {
     position: "absolute",
-    top: 18,
+    bottom: 18,
     left: 18,
     right: 18,
     pointerEvents: "none",

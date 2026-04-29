@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from ai import analyze_animal_image
-from constants import CATEGORY_OPTIONS, RARE_STATUSES
+from constants import CATEGORY_OPTIONS, RARE_STATUSES, normalize_category
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -23,6 +23,7 @@ from schemas import (
     MapMarker,
     SaveFindingRequest,
     SpeciesDetail,
+    UpdateFindingRequest,
     UpdatePreferencesRequest,
     UserProfile,
 )
@@ -64,6 +65,27 @@ def sanitize(document: Optional[Dict]) -> Optional[Dict]:
     return clean
 
 
+def normalize_analysis_response(result: AnalysisResponse) -> AnalysisResponse:
+    payload = result.model_dump()
+    payload["primarySuggestion"]["category"] = normalize_category(
+        payload["primarySuggestion"].get("category")
+    )
+    payload["alternativeSuggestions"] = [
+        {**item, "category": normalize_category(item.get("category"))}
+        for item in payload.get("alternativeSuggestions", [])
+    ]
+    return AnalysisResponse(**payload)
+
+
+def normalize_finding_document(document: Dict) -> Dict:
+    clean = sanitize(document) or {}
+    if "category" in clean:
+        clean["category"] = normalize_category(clean.get("category"))
+    if clean.get("municipality") is not None:
+        clean["municipality"] = str(clean.get("municipality") or "").strip() or None
+    return clean
+
+
 def with_date_labels(captured_at: str) -> Dict[str, str]:
     parsed = datetime.fromisoformat(captured_at.replace("Z", "+00:00"))
     return {
@@ -80,7 +102,8 @@ async def get_profile_or_404(user_id: str) -> Dict:
 
 
 async def fetch_findings(user_id: str) -> List[Dict]:
-    return await db.findings.find({"userId": user_id}, {"_id": 0}).sort("capturedAt", 1).to_list(2000)
+    findings = await db.findings.find({"userId": user_id}, {"_id": 0}).sort("capturedAt", 1).to_list(2000)
+    return [normalize_finding_document(item) for item in findings]
 
 
 async def upsert_species(finding: Dict) -> None:
@@ -89,7 +112,7 @@ async def upsert_species(finding: Dict) -> None:
         "slug": slug,
         "danishName": finding["danishName"],
         "latinName": finding["latinName"],
-        "category": finding["category"],
+        "category": normalize_category(finding["category"]),
         "subcategory": finding["subcategory"],
         "family": finding.get("family", "Ukendt"),
         "size": finding.get("size", "Ikke angivet"),
@@ -173,7 +196,8 @@ async def update_profile(user_id: str, payload: UpdatePreferencesRequest) -> Use
 @api_router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_finding(payload: AnalyzeRequest) -> AnalysisResponse:
     try:
-        return await analyze_animal_image(payload.imageBase64)
+        result = await analyze_animal_image(payload.imageBase64)
+        return normalize_analysis_response(result)
     except ValueError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
@@ -189,6 +213,11 @@ async def save_finding(payload: SaveFindingRequest) -> Finding:
     await get_profile_or_404(payload.userId)
     findings = await fetch_findings(payload.userId)
     primary = payload.analysis.primarySuggestion.model_dump()
+    primary["category"] = normalize_category(primary.get("category"))
+    alternatives = [
+        {**item.model_dump(), "category": normalize_category(item.category)}
+        for item in payload.analysis.alternativeSuggestions
+    ]
     points, is_new_species, is_first_in_category = calculate_award(
         findings,
         {
@@ -205,7 +234,7 @@ async def save_finding(payload: SaveFindingRequest) -> Finding:
         **date_labels,
         "latitude": payload.latitude,
         "longitude": payload.longitude,
-        "municipality": payload.municipality,
+        "municipality": payload.municipality.strip() if payload.municipality else None,
         "danishName": primary["danishName"],
         "latinName": primary["latinName"],
         "category": primary["category"],
@@ -217,7 +246,7 @@ async def save_finding(payload: SaveFindingRequest) -> Finding:
         "rarityStatus": primary["rarityStatus"],
         "aiVerifiedStatus": payload.aiVerifiedStatus,
         "userNote": payload.userNote,
-        "alternativeSuggestions": [item.model_dump() for item in payload.analysis.alternativeSuggestions],
+        "alternativeSuggestions": alternatives,
         "warning": primary["warning"],
         "cautionAdvice": primary["cautionAdvice"],
         "size": primary["size"],
@@ -236,7 +265,7 @@ async def save_finding(payload: SaveFindingRequest) -> Finding:
     }
     await db.findings.insert_one(finding.copy())
     await upsert_species(finding)
-    return Finding(**sanitize(finding))
+    return Finding(**normalize_finding_document(finding))
 
 
 @api_router.get("/findings", response_model=List[Finding])
@@ -246,16 +275,18 @@ async def get_findings(
     search: Optional[str] = None,
     sort: str = Query(default="Nyeste"),
 ) -> List[Finding]:
-    query: Dict[str, object] = {"userId": userId}
+    findings = await fetch_findings(userId)
     if category and category != "Alle":
-        query["category"] = category
+        requested_category = normalize_category(category)
+        findings = [item for item in findings if item.get("category") == requested_category]
     if search:
-        query["$or"] = [
-            {"danishName": {"$regex": search, "$options": "i"}},
-            {"latinName": {"$regex": search, "$options": "i"}},
+        term = search.lower()
+        findings = [
+            item
+            for item in findings
+            if term in str(item.get("danishName") or "").lower()
+            or term in str(item.get("latinName") or "").lower()
         ]
-
-    findings = await db.findings.find(query, {"_id": 0}).to_list(2000)
     sort_map = {
         "Nyeste": lambda item: item["capturedAt"],
         "Ældste": lambda item: item["capturedAt"],
@@ -272,7 +303,24 @@ async def get_finding(finding_id: str) -> Finding:
     finding = await db.findings.find_one({"id": finding_id}, {"_id": 0})
     if not finding:
         raise HTTPException(status_code=404, detail="Fundet blev ikke fundet")
-    return Finding(**finding)
+    return Finding(**normalize_finding_document(finding))
+
+
+@api_router.patch("/findings/{finding_id}", response_model=Finding)
+async def update_finding(finding_id: str, payload: UpdateFindingRequest) -> Finding:
+    existing = await db.findings.find_one({"id": finding_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Fundet blev ikke fundet")
+
+    updates = payload.model_dump(exclude_unset=True)
+    if "municipality" in updates:
+        updates["municipality"] = str(updates.get("municipality") or "").strip() or None
+
+    if updates:
+        await db.findings.update_one({"id": finding_id}, {"$set": updates})
+
+    updated = await db.findings.find_one({"id": finding_id}, {"_id": 0})
+    return Finding(**normalize_finding_document(updated or existing))
 
 
 @api_router.delete("/findings/{finding_id}")
@@ -311,7 +359,12 @@ async def get_species_detail(slug: str, userId: str) -> SpeciesDetail:
         {"userId": userId, "latinName": species["latinName"]},
         {"_id": 0},
     ).sort("capturedAt", -1).to_list(100)
-    return SpeciesDetail(**{**species, "findings": findings})
+    species_payload = {
+        **species,
+        "category": normalize_category(species.get("category")),
+        "findings": [normalize_finding_document(item) for item in findings],
+    }
+    return SpeciesDetail(**species_payload)
 
 
 @api_router.delete("/species/{slug}")
@@ -332,11 +385,13 @@ async def get_map_markers(user_id: str, category: Optional[str] = None) -> List[
         "latitude": {"$ne": None},
         "longitude": {"$ne": None},
     }
-    if category and category != "Alle":
-        query["category"] = category
     findings = await db.findings.find(query, {"_id": 0}).sort("capturedAt", -1).to_list(500)
+    normalized_findings = [normalize_finding_document(item) for item in findings]
+    if category and category != "Alle":
+        requested_category = normalize_category(category)
+        normalized_findings = [item for item in normalized_findings if item.get("category") == requested_category]
     markers: List[MapMarker] = []
-    for finding in findings:
+    for finding in normalized_findings:
         approximate = str(finding.get("rarityStatus") or "") in RARE_STATUSES
         latitude = round(float(finding["latitude"]), 1) if approximate else float(finding["latitude"])
         longitude = round(float(finding["longitude"]), 1) if approximate else float(finding["longitude"])

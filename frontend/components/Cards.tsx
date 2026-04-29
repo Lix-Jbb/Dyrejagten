@@ -37,12 +37,15 @@ export function ProgressBar({
   progress,
   helper,
   onPress,
+  testID,
 }: {
   label: string;
   progress: number;
   helper: string;
   onPress?: () => void;
+  testID?: string;
 }) {
+  const normalizedProgress = Math.max(0, Math.min(progress, 1));
   const content = (
     <View style={styles.progressBlock}>
       <View style={styles.rowBetween}>
@@ -50,12 +53,18 @@ export function ProgressBar({
         <Text style={styles.helper}>{helper}</Text>
       </View>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: progress <= 0 ? "0%" : `${progress * 100}%` }]} />
+        {normalizedProgress > 0 ? <View style={[styles.fill, { width: `${normalizedProgress * 100}%` }]} /> : null}
       </View>
     </View>
   );
 
-  return onPress ? <Pressable onPress={onPress}>{content}</Pressable> : content;
+  return onPress ? (
+    <Pressable accessibilityRole="button" onPress={onPress} testID={testID}>
+      {content}
+    </Pressable>
+  ) : (
+    <View testID={testID}>{content}</View>
+  );
 }
 
 export function FindingCard({ finding, onPress }: { finding: Finding; onPress?: () => void }) {
@@ -85,7 +94,7 @@ export function FindingCard({ finding, onPress }: { finding: Finding; onPress?: 
 
 export function BadgeCard({ badge }: { badge: BadgeProgress }) {
   return (
-    <View style={[styles.badgeCard, !badge.unlocked && styles.badgeLocked]}>
+    <View style={[styles.badgeCard, !badge.unlocked && styles.badgeLocked]} testID={`badge-card-${badge.id}`}>
       <View style={styles.badgeIconWrap}>
         <Ionicons name={badge.unlocked ? "ribbon" : "lock-closed"} size={20} color="#f7f9f4" />
       </View>
@@ -204,7 +213,7 @@ const styles = StyleSheet.create({
   track: {
     height: 10,
     borderRadius: 999,
-    backgroundColor: "#e5efe3",
+    backgroundColor: "#d9e2d7",
     overflow: "hidden",
   },
   fill: {

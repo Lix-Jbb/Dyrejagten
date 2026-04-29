@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 CATEGORY_TARGETS: Dict[str, int] = {
@@ -70,6 +70,46 @@ CATEGORY_OPTIONS: List[Dict[str, object]] = [
         "subcategories": ["Bydyr", "Havedyr", "Skovdyr", "Vådområder"],
     },
 ]
+
+
+CATEGORY_ALIASES: Dict[str, str] = {
+    "insekt": "Insekter",
+    "insekter": "Insekter",
+    "bille": "Insekter",
+    "biller": "Insekter",
+    "sommerfugl": "Insekter",
+    "fugl": "Fugle",
+    "fugle": "Fugle",
+    "pattedyr": "Pattedyr",
+    "krybdyr": "Krybdyr og padder",
+    "padde": "Krybdyr og padder",
+    "padder": "Krybdyr og padder",
+    "krybdyr og padder": "Krybdyr og padder",
+    "frø": "Krybdyr og padder",
+    "tudse": "Krybdyr og padder",
+    "salamander": "Krybdyr og padder",
+    "fisk": "Fisk",
+    "edderkop": "Edderkopper og smådyr",
+    "edderkopper": "Edderkopper og smådyr",
+    "edderkopper og smådyr": "Edderkopper og smådyr",
+    "leddyr": "Edderkopper og smådyr",
+    "smådyr": "Edderkopper og smådyr",
+    "havdyr": "Hav- og stranddyr",
+    "stranddyr": "Hav- og stranddyr",
+    "hav- og stranddyr": "Hav- og stranddyr",
+    "hav og stranddyr": "Hav- og stranddyr",
+    "andre": "Andre dyr i Danmark",
+    "andet": "Andre dyr i Danmark",
+    "andre dyr i danmark": "Andre dyr i Danmark",
+}
+
+
+def normalize_category(value: Optional[str]) -> str:
+    if not value:
+        return "Andre dyr i Danmark"
+
+    normalized = value.strip().lower()
+    return CATEGORY_ALIASES.get(normalized, value.strip())
 
 
 RARE_STATUSES = {"Sjælden", "Fredet", "Særlig opmærksomhed"}

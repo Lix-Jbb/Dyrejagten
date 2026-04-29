@@ -15,7 +15,7 @@ const CATEGORY_TARGETS: Record<string, number> = {
   Fisk: 6,
   "Edderkopper og smådyr": 8,
   "Hav- og stranddyr": 8,
-  Andre: 6,
+  "Andre dyr i Danmark": 6,
 };
 
 function daysBetween(reference: Date, value: string) {
@@ -73,7 +73,7 @@ export default function ScoreScreen() {
       </View>
 
       <GlassCard>
-        <SectionHeading title="Fund i perioder" />
+        <SectionHeading title="Tidslinje" />
         <Text style={styles.helper}>I dag: {periodStats.iDag}</Text>
         <Text style={styles.helper}>I går: {periodStats.iGår}</Text>
         <Text style={styles.helper}>I forgårs: {periodStats.iForgårs}</Text>
@@ -90,6 +90,7 @@ export default function ScoreScreen() {
             helper={`${item.total}/${item.target}`}
             label={item.category}
             progress={item.progress}
+            testID={`score-category-${item.category.toLowerCase().replace(/[^a-z0-9æøå]+/g, "-")}`}
             onPress={() => router.push({ pathname: "/(tabs)/collection", params: { category: item.category } } as never)}
           />
         ))}

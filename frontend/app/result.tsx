@@ -1,19 +1,29 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, Modal, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { GlassCard } from "../components/Cards";
 import { NatureButton, Screen, theme } from "../components/Screen";
 import { useApp } from "../context/AppContext";
 import { slugifyLatinName } from "../lib/api";
+import { Finding } from "../lib/types";
 
 export default function ResultScreen() {
   const router = useRouter();
   const { busy, currentAnalysis, currentCapture, loadSpecies, saveCurrentFinding } = useApp();
+  const [manualName, setManualName] = useState("");
+  const [savedFinding, setSavedFinding] = useState<Finding | null>(null);
 
-  if (!currentAnalysis || !currentCapture) {
+  const suggestion = currentAnalysis?.primarySuggestion;
+
+  useEffect(() => {
+    setManualName("");
+    setSavedFinding(null);
+  }, [currentCapture?.capturedAt, suggestion?.latinName]);
+
+  if (!currentAnalysis || !currentCapture || !suggestion) {
     return (
       <Screen title="Resultat" subtitle="Der er ikke et aktivt fund at vise endnu.">
         <GlassCard>
@@ -24,40 +34,81 @@ export default function ResultScreen() {
     );
   }
 
-  const suggestion = currentAnalysis.primarySuggestion;
   const isUnknown = currentAnalysis.shouldAskForNewPhoto && suggestion.confidenceScore < 0.45;
+  const trimmedManualName = manualName.trim();
   const certaintyLabel =
     suggestion.confidenceScore >= 0.8
-      ? "AI'en er ret sikker"
+      ? "Vi tror meget på det her bud"
       : suggestion.confidenceScore >= 0.55
-        ? "AI'en tror, det er den her"
-        : "AI'en er lidt i tvivl";
+        ? "Vi tror, det er den her"
+        : "Vi er lidt i tvivl, men det her er vores bedste bud";
+
+  const resultSubtitle = useMemo(
+    () =>
+      trimmedManualName
+        ? `Vi gemmer navnet som ${trimmedManualName}.`
+        : `Det ligner en ${suggestion.danishName.toLowerCase()}.`,
+    [suggestion.danishName, trimmedManualName]
+  );
 
   const saveToDiary = async () => {
     try {
-      const finding = await saveCurrentFinding({ note: "" });
-      Alert.alert("Gemt", `${suggestion.danishName} er nu i din dyrebog.`);
-      await loadSpecies(slugifyLatinName(finding.latinName));
-      router.replace(`/species/${slugifyLatinName(finding.latinName)}` as never);
+      const finding = await saveCurrentFinding({
+        note: "",
+        customDanishName: trimmedManualName || undefined,
+        customLatinName: trimmedManualName || undefined,
+      });
+      setSavedFinding(finding);
     } catch (error) {
       Alert.alert("Ups", error instanceof Error ? error.message : "Prøv igen om lidt.");
     }
   };
 
+  const openSavedAnimal = async () => {
+    if (!savedFinding) {
+      return;
+    }
+    const slug = slugifyLatinName(savedFinding.latinName);
+    await loadSpecies(slug);
+    setSavedFinding(null);
+    router.replace(`/species/${slug}` as never);
+  };
+
+  const closeSuccessModal = () => {
+    setSavedFinding(null);
+    router.replace("/(tabs)" as never);
+  };
+
   if (isUnknown) {
     return (
-      <Screen title="Kunne ikke matche det med et dyr." subtitle="Prøv igen med et andet billede.">
+      <Screen
+        title="Vi kunne ikke finde dyret sikkert"
+        subtitle="Prøv igen med et andet billede."
+        bottomAction={
+          <View style={styles.bottomActions}>
+            <NatureButton label="Tag nyt billede" onPress={() => router.replace("/(tabs)/camera" as never)} testID="result-unknown-retry-button" />
+            <NatureButton label="Tilbage" onPress={() => router.replace("/(tabs)" as never)} testID="result-unknown-back-button" variant="ghost" />
+          </View>
+        }
+      >
         <GlassCard>
           <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} />
         </GlassCard>
-        <NatureButton label="Tag nyt billede" onPress={() => router.replace("/(tabs)/camera" as never)} />
-        <NatureButton label="Annuller" onPress={() => router.replace("/(tabs)" as never)} variant="ghost" />
       </Screen>
     );
   }
 
   return (
-    <Screen title="Det ligner..." subtitle={`Det ligner en ${suggestion.danishName.toLowerCase()}.`}>
+    <Screen
+      title="Vi tror, det er den her"
+      subtitle={resultSubtitle}
+      bottomAction={
+        <View style={styles.bottomActions}>
+          <NatureButton label="Gem i min dyrebog" loading={busy} onPress={saveToDiary} testID="result-save-button" />
+          <NatureButton label="Tilbage" onPress={() => router.replace("/(tabs)/camera" as never)} testID="result-back-button" variant="ghost" />
+        </View>
+      }
+    >
       <GlassCard>
         <Image contentFit="cover" source={{ uri: currentCapture.uri }} style={styles.image} />
         <View style={styles.badgeRow}>
@@ -67,13 +118,42 @@ export default function ResultScreen() {
           </View>
           <Text style={styles.confidence}>{certaintyLabel}</Text>
         </View>
-        <Text style={styles.title}>{suggestion.danishName}</Text>
+        <Text style={styles.title} testID="result-animal-name">{trimmedManualName || suggestion.danishName}</Text>
         <Text style={styles.subtitle}>{suggestion.latinName}</Text>
         <Text style={styles.body}>{certaintyLabel}</Text>
+        <View style={styles.manualCard} testID="result-manual-name-card">
+          <Text style={styles.manualTitle}>Er navnet forkert?</Text>
+          <Text style={styles.manualText}>Skriv selv dyrets navn her, så gemmer vi det sådan.</Text>
+          <TextInput
+            onChangeText={setManualName}
+            placeholder="Skriv dyrets navn"
+            placeholderTextColor="#789080"
+            style={styles.input}
+            testID="result-manual-name-input"
+            value={manualName}
+          />
+          <Text style={styles.helper} testID="result-manual-name-helper">
+            {trimmedManualName ? `Vi gemmer: ${trimmedManualName}` : "Ellers gemmer vi vores bedste bud."}
+          </Text>
+        </View>
         {currentAnalysis.shouldAskForNewPhoto ? <Text style={styles.warning}>{currentAnalysis.retryHint}</Text> : null}
       </GlassCard>
-      <NatureButton label="Gem i min dyrebog" loading={busy} onPress={saveToDiary} testID="result-save-button" />
-      <NatureButton label="Annuller" onPress={() => router.replace("/(tabs)" as never)} testID="result-cancel-button" variant="ghost" />
+
+      <Modal animationType="fade" transparent visible={Boolean(savedFinding)}>
+        <View style={styles.modalBackdrop} testID="result-success-modal">
+          <View style={styles.successCard}>
+            <View style={styles.successIcon}>
+              <Ionicons color="#fffdf6" name="checkmark" size={26} />
+            </View>
+            <Text style={styles.successTitle} testID="result-success-title">Dyret er gemt!</Text>
+            <Text style={styles.successText} testID="result-success-text">
+              {savedFinding?.danishName ?? suggestion.danishName} bor nu i din dyrebog.
+            </Text>
+            <NatureButton label="Se dyret" onPress={openSavedAnimal} testID="result-success-open-button" />
+            <NatureButton label="Find et nyt dyr" onPress={closeSuccessModal} testID="result-success-home-button" variant="ghost" />
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -127,6 +207,35 @@ const styles = StyleSheet.create({
     color: theme.dark,
     fontWeight: "800",
   },
+  manualCard: {
+    gap: 10,
+    backgroundColor: "#eef4ea",
+    borderRadius: 22,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#bfd2be",
+  },
+  manualTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: theme.dark,
+  },
+  manualText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: theme.dark,
+    fontWeight: "700",
+  },
+  input: {
+    minHeight: 54,
+    borderRadius: 18,
+    backgroundColor: "#fffdf6",
+    borderWidth: 2,
+    borderColor: theme.dark,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: theme.dark,
+  },
   helper: {
     fontSize: 15,
     lineHeight: 22,
@@ -138,5 +247,47 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     color: "#8b5a1f",
     fontWeight: "700",
+  },
+  bottomActions: {
+    gap: 10,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(12, 37, 21, 0.26)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 18,
+  },
+  successCard: {
+    width: "100%",
+    maxWidth: 380,
+    borderRadius: 30,
+    padding: 22,
+    gap: 14,
+    backgroundColor: "#dff3df",
+    borderWidth: 3,
+    borderColor: theme.dark,
+    alignItems: "center",
+  },
+  successIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 999,
+    backgroundColor: theme.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  successTitle: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: theme.dark,
+    textAlign: "center",
+  },
+  successText: {
+    fontSize: 17,
+    lineHeight: 24,
+    color: theme.dark,
+    fontWeight: "700",
+    textAlign: "center",
   },
 });
