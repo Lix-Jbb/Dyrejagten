@@ -147,6 +147,7 @@ export type UserProfile = {
 
 export type MapMarker = {
   id: string;
+  speciesSlug: string;
   category: string;
   danishName: string;
   municipality: string;

@@ -1,52 +1,76 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Line, Rect } from "react-native-svg";
+import MapView, { Callout, Marker, Region } from "react-native-maps";
 
 import { MapMarker } from "../lib/types";
 import { theme } from "./Screen";
 
-const BOUNDS = {
-  minLat: 54.5,
-  maxLat: 57.8,
-  minLon: 8.0,
-  maxLon: 12.9,
+const DENMARK_REGION: Region = {
+  latitude: 56.2,
+  longitude: 10.0,
+  latitudeDelta: 2.7,
+  longitudeDelta: 2.7,
 };
 
-function project(latitude: number, longitude: number) {
-  const width = 300;
-  const height = 400;
-  const x = ((longitude - BOUNDS.minLon) / (BOUNDS.maxLon - BOUNDS.minLon)) * width;
-  const y = height - ((latitude - BOUNDS.minLat) / (BOUNDS.maxLat - BOUNDS.minLat)) * height;
-  return { x: Math.max(18, Math.min(width - 18, x)), y: Math.max(20, Math.min(height - 20, y)) };
+function buildRegion(markers: MapMarker[]): Region {
+  if (!markers.length) {
+    return DENMARK_REGION;
+  }
+
+  const latitudes = markers.map((marker) => marker.latitude);
+  const longitudes = markers.map((marker) => marker.longitude);
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const minLon = Math.min(...longitudes);
+  const maxLon = Math.max(...longitudes);
+
+  return {
+    latitude: (minLat + maxLat) / 2,
+    longitude: (minLon + maxLon) / 2,
+    latitudeDelta: Math.max((maxLat - minLat) * 1.9, 0.12),
+    longitudeDelta: Math.max((maxLon - minLon) * 1.9, 0.12),
+  };
 }
 
-export function ScatterMap({ markers, testID }: { markers: MapMarker[]; testID?: string }) {
+export function ScatterMap({
+  markers,
+  testID,
+  onMarkerPress,
+}: {
+  markers: MapMarker[];
+  testID?: string;
+  onMarkerPress?: (marker: MapMarker) => void;
+}) {
+  const initialRegion = useMemo(() => buildRegion(markers), [markers]);
+  const mapKey = useMemo(() => markers.map((marker) => marker.id).sort().join("-") || "empty-map", [markers]);
+
   return (
     <View style={styles.wrap} testID={testID}>
       <View style={styles.mapFrame}>
-        <Svg width="100%" height="100%" viewBox="0 0 300 400">
-          <Rect x={14} y={14} width={272} height={372} rx={34} fill="#e2efe2" />
-          <Line x1={150} y1={16} x2={150} y2={384} stroke="#c2d9c5" strokeDasharray="6 8" />
-          <Line x1={20} y1={200} x2={280} y2={200} stroke="#c2d9c5" strokeDasharray="6 8" />
+        <MapView initialRegion={initialRegion} key={mapKey} style={styles.map} testID={testID ? `${testID}-interactive` : undefined}>
           {markers.map((marker) => {
-            const { x, y } = project(marker.latitude, marker.longitude);
             return (
-              <Circle
+              <Marker
+                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                 key={marker.id}
-                cx={x}
-                cy={y}
-                r={marker.isApproximate ? 9 : 7}
-                fill={marker.isApproximate ? "#d7a86e" : "#4a7c59"}
-                opacity={0.92}
-                stroke="#fffdf6"
-                strokeWidth={2.5}
-              />
+                onPress={() => onMarkerPress?.(marker)}
+                pinColor={marker.isApproximate ? "#d7a86e" : theme.primary}
+                testID={`${testID ?? "map"}-marker-${marker.id}`}
+              >
+                <Callout onPress={() => onMarkerPress?.(marker)}>
+                  <View style={styles.callout}>
+                    <Text style={styles.calloutTitle}>{marker.danishName}</Text>
+                    <Text style={styles.calloutText}>{marker.municipality}</Text>
+                    <Text style={styles.calloutHint}>Tryk for at åbne dyreprofilen</Text>
+                  </View>
+                </Callout>
+              </Marker>
             );
           })}
-        </Svg>
+        </MapView>
         <View style={styles.overlayLabel}>
           <Text style={styles.labelTitle}>Danmarkskort</Text>
-          <Text style={styles.labelText}>Dine fund vises som grønne prikker</Text>
+          <Text style={styles.labelText}>Zoom og tryk på en prik for at se dyret</Text>
         </View>
       </View>
       <Text style={styles.helper} testID={`${testID ?? "scatter-map"}-helper`}>
@@ -70,6 +94,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  map: {
+    width: "100%",
+    height: "100%",
+  },
   overlayLabel: {
     position: "absolute",
     bottom: 18,
@@ -90,6 +118,26 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: theme.textMuted,
+  },
+  callout: {
+    minWidth: 150,
+    maxWidth: 220,
+    gap: 3,
+    paddingVertical: 4,
+  },
+  calloutTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: theme.dark,
+  },
+  calloutText: {
+    fontSize: 13,
+    color: theme.dark,
+  },
+  calloutHint: {
+    fontSize: 12,
+    color: theme.textMuted,
+    fontWeight: "700",
   },
   helper: {
     fontSize: 13,

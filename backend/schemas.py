@@ -132,6 +132,7 @@ class Finding(BaseModel):
 
 class MapMarker(BaseModel):
     id: str
+    speciesSlug: str
     category: str
     danishName: str
     municipality: str

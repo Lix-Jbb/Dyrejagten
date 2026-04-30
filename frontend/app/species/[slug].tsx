@@ -64,6 +64,7 @@ export default function SpeciesScreen() {
     .filter((finding) => finding.latitude != null && finding.longitude != null)
     .map((finding) => ({
       id: finding.id,
+      speciesSlug: speciesPreview.slug,
       category: speciesPreview.category,
       danishName: speciesPreview.danishName,
       municipality: finding.municipality ?? "Ukendt område",
@@ -211,7 +212,7 @@ export default function SpeciesScreen() {
       <GlassCard>
         <SectionHeading title="Her fandt jeg dyret" />
         <Text style={styles.info}>By / område: {activeFinding?.municipality || "Du har ikke valgt et sted endnu."}</Text>
-        <Text style={styles.helper}>Vi prøver først at finde stedet automatisk. Hvis det ikke lykkes, kan du selv skrive det her.</Text>
+        <Text style={styles.helper}>Du kan zoome og kigge rundt på kortet. Hvis lokationen ikke blev fundet automatisk, kan du selv skrive den her.</Text>
         <TextInput
           onChangeText={setPlaceInput}
           placeholder="Skriv sted eller by"

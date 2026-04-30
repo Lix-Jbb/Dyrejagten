@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { FilterPill, GlassCard, SectionHeading } from "../components/Cards";
@@ -43,20 +43,24 @@ export default function MapScreen() {
       </ScrollView>
 
       <GlassCard>
-        <ScatterMap markers={markers} testID="all-findings-map" />
+        <ScatterMap
+          markers={markers}
+          onMarkerPress={(marker) => router.push(`/species/${marker.speciesSlug}` as never)}
+          testID="all-findings-map"
+        />
       </GlassCard>
 
       <GlassCard>
         <SectionHeading title="Seneste fundpunkter" action={<Text style={styles.helper}>{findings.length} fund i alt</Text>} />
         {latestMarkers.length ? (
           latestMarkers.map((marker) => (
-            <View key={marker.id} style={styles.row}>
+            <Pressable key={marker.id} onPress={() => router.push(`/species/${marker.speciesSlug}` as never)} style={styles.row} testID={`map-list-item-${marker.id}`}>
               <View>
                 <Text style={styles.name}>{marker.danishName}</Text>
                 <Text style={styles.helper}>{marker.municipality}</Text>
               </View>
               <Text style={styles.helper}>{marker.isApproximate ? "Omtrentligt" : marker.category}</Text>
-            </View>
+            </Pressable>
           ))
         ) : (
           <Text style={styles.helper}>Tillad lokation og gem et fund for at se markører her.</Text>
@@ -79,6 +83,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: 12,
+    paddingVertical: 8,
   },
   name: {
     fontSize: 16,

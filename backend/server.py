@@ -398,6 +398,7 @@ async def get_map_markers(user_id: str, category: Optional[str] = None) -> List[
         markers.append(
             MapMarker(
                 id=finding["id"],
+                speciesSlug=slugify(str(finding.get("latinName") or finding.get("danishName") or "fund")),
                 category=finding["category"],
                 danishName=finding["danishName"],
                 municipality=finding.get("municipality") or "Ukendt område",
