@@ -47,6 +47,7 @@ type AppContextValue = {
   refreshData: () => Promise<void>;
   setError: (value: string | null) => void;
   setCurrentCapture: (value: CaptureAsset | null) => void;
+  clearCurrentFlow: () => void;
   runAnalysis: () => Promise<void>;
   saveCurrentFinding: (payload: SaveFindingPayload) => Promise<Finding>;
   removeFinding: (id: string) => Promise<void>;
@@ -134,6 +135,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setMarkers(markerData);
   }, [userId]);
 
+  const clearCurrentFlow = useCallback(() => {
+    setCurrentCapture(null);
+    setCurrentAnalysis(null);
+  }, []);
+
   const runAnalysis = useCallback(async () => {
     if (!currentCapture) {
       throw new Error("Tag eller vælg først et billede.");
@@ -190,14 +196,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         const finding = await saveFinding(userId, currentCapture, currentAnalysis, payload, locationPayload);
         await refreshData();
-        setCurrentCapture(null);
-        setCurrentAnalysis(null);
         return finding;
       } finally {
         setBusy(false);
       }
     },
-    [currentAnalysis, currentCapture, profile?.allowLocation, refreshData, userId]
+    [currentAnalysis, currentCapture, refreshData, userId]
   );
 
   const removeFinding = useCallback(
@@ -315,6 +319,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       refreshData,
       setError,
       setCurrentCapture,
+      clearCurrentFlow,
       runAnalysis,
       saveCurrentFinding,
       removeFinding,
@@ -328,6 +333,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       badges,
       busy,
       categories,
+      clearCurrentFlow,
       completeOnboarding,
       currentAnalysis,
       currentCapture,

@@ -11,7 +11,7 @@ import { slugifyLatinName } from "../lib/api";
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { busy, currentAnalysis, currentCapture, loadSpecies, saveCurrentFinding } = useApp();
+  const { busy, clearCurrentFlow, currentAnalysis, currentCapture, loadSpecies, saveCurrentFinding } = useApp();
   const [manualName, setManualName] = useState("");
 
   const suggestion = currentAnalysis?.primarySuggestion;
@@ -53,8 +53,9 @@ export default function ResultScreen() {
         customLatinName: trimmedManualName || undefined,
       });
       const slug = slugifyLatinName(finding.latinName);
-      await loadSpecies(slug);
       router.replace(`/species/${slug}` as never);
+      loadSpecies(slug).catch(() => null);
+      clearCurrentFlow();
     } catch (error) {
       Alert.alert("Ups", error instanceof Error ? error.message : "Prøv igen om lidt.");
     }

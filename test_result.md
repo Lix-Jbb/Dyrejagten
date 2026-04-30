@@ -231,15 +231,21 @@ frontend:
         comment: "Tab-book overskriver nu altid til ren /(tabs)/collection-route. Selvtestet via præcis flow: badges -> kategori -> hjem -> dyrebog. URL ender nu uden query, og Alle er valgt."
   - task: "Gem-fund går direkte til artsdetalje"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/app/result.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Resultatskærmen springer nu succes-popup over og navigerer direkte til artsdetaljen efter gem. Preview af /result uden aktiv analyse crasher ikke, men komplet save-flow skal stadig UI-testes."
+      - working: false
+        agent: "user"
+        comment: "Bruger så stadig fallback-beskeden på resultatskærmen efter oprettelse af dyr og ønskede direkte hop til dyreprofilen uden mellemtrin."
+      - working: true
+        agent: "main"
+        comment: "Rettet race-condition: saveCurrentFinding rydder ikke længere currentCapture/currentAnalysis før navigation. Resultatskærmen router nu først til /species/[slug], forloader derefter species og rydder først flow-state bagefter via clearCurrentFlow(). Typecheck og sanity-preview bestået."
   - task: "Lokation sættes automatisk ved gem"
     implemented: true
     working: true
@@ -290,3 +296,5 @@ agent_communication:
     message: "Ny ændring efter brugerfeedback: 'Gem i min dyrebog' skal nu gå direkte til artsdetaljen. saveCurrentFinding prøver nu også automatisk geolokation ved gem, så 'Her fandt jeg dyret' kan udfyldes uden manuel indtastning, men der er stadig manuel fallback på artsdetaljen." 
   - agent: "main"
     message: "Efter iteration_6 er geocode-path hærdet: reverseGeocodeAsync kan ikke længere blokere gem-flowet. Direkte navigation efter gem er implementeret, men komplet E2E-upload/save-flow kunne ikke automatiseres i web-preview pga. Expo image picker-begrænsning." 
+  - agent: "main"
+    message: "Bruger rapporterede stadig fallback-beskeden på resultatskærmen. Root cause var en race-condition, hvor context-state blev nulstillet før route-skift. Det er nu rettet med clearCurrentFlow() efter router.replace til artsdetaljen." 
