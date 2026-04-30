@@ -64,9 +64,15 @@ export default function HomeScreen() {
         </Pressable>
       }
     >
-      <Pressable onPress={() => router.push("/(tabs)/collection" as never)}>
+      <Pressable onPress={() => router.push("/(tabs)/collection" as never)} style={styles.statusCardPressable} testID="home-open-diary-card">
         <GlassCard>
-          <Text style={styles.statusLine}>Du har fundet {dashboard?.totalFindings ?? 0} dyr</Text>
+          <View style={styles.statusRow}>
+            <View style={styles.statusTextWrap}>
+              <Text style={styles.statusLine}>Du har fundet {dashboard?.totalFindings ?? 0} dyr</Text>
+              <Text style={styles.statusHint}>Tryk her for at åbne din dyrebog</Text>
+            </View>
+            <Ionicons color={theme.primary} name="chevron-forward-circle" size={28} />
+          </View>
         </GlassCard>
       </Pressable>
 
@@ -93,6 +99,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  statusCardPressable: {
+    borderRadius: 30,
+  },
   profileButton: {
     width: 44,
     height: 44,
@@ -130,5 +139,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800",
     color: theme.dark,
+  },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  statusTextWrap: {
+    flex: 1,
+    gap: 4,
+  },
+  statusHint: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: theme.textMuted,
+    fontWeight: "700",
   },
 });

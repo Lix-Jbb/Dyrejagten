@@ -6,8 +6,10 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -21,6 +23,8 @@ type ScreenProps = {
   leftAction?: React.ReactNode;
   centerTitle?: boolean;
   rightAction?: React.ReactNode;
+  titleStyle?: StyleProp<TextStyle>;
+  subtitleStyle?: StyleProp<TextStyle>;
 };
 
 export function Screen({
@@ -32,6 +36,8 @@ export function Screen({
   leftAction,
   centerTitle = false,
   rightAction,
+  titleStyle,
+  subtitleStyle,
 }: ScreenProps) {
   const content = (
     <Animated.View entering={FadeInDown.duration(450)} style={styles.inner}>
@@ -39,8 +45,8 @@ export function Screen({
         <View style={styles.header}>
           <View style={styles.headerSide}>{leftAction}</View>
           <View style={[styles.headerText, centerTitle && styles.headerTextCentered]}>
-            {title ? <Text style={[styles.title, centerTitle && styles.titleCentered]}>{title}</Text> : null}
-            {subtitle ? <Text style={[styles.subtitle, centerTitle && styles.subtitleCentered]}>{subtitle}</Text> : null}
+            {title ? <Text style={[styles.title, centerTitle && styles.titleCentered, titleStyle]}>{title}</Text> : null}
+            {subtitle ? <Text style={[styles.subtitle, centerTitle && styles.subtitleCentered, subtitleStyle]}>{subtitle}</Text> : null}
           </View>
           <View style={styles.headerSide}>{rightAction}</View>
         </View>
@@ -79,6 +85,7 @@ type ButtonProps = {
   loading?: boolean;
   disabled?: boolean;
   testID?: string;
+  size?: "default" | "compact";
 };
 
 function toTestId(value: string) {
@@ -93,6 +100,7 @@ export function NatureButton({
   loading,
   disabled,
   testID,
+  size = "default",
 }: ButtonProps) {
   return (
     <Pressable
@@ -102,6 +110,7 @@ export function NatureButton({
       testID={testID ?? toTestId(label)}
       style={({ pressed }) => [
         styles.button,
+        size === "compact" && styles.buttonCompact,
         styles[variant],
         pressed && !disabled && { transform: [{ scale: 0.985 }], opacity: 0.92 },
         disabled && styles.disabled,
@@ -112,7 +121,7 @@ export function NatureButton({
       ) : (
         <>
           {icon}
-          <Text style={[styles.buttonText, variant === "ghost" && styles.ghostText]}>{label}</Text>
+          <Text style={[styles.buttonText, size === "compact" && styles.buttonTextCompact, variant === "ghost" && styles.ghostText]}>{label}</Text>
         </>
       )}
     </Pressable>
@@ -194,6 +203,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: theme.dark,
   },
+  buttonCompact: {
+    minHeight: 48,
+    paddingHorizontal: 18,
+    borderRadius: 24,
+  },
   primary: {
     backgroundColor: theme.primary,
   },
@@ -207,6 +221,9 @@ const styles = StyleSheet.create({
     color: "#fffdf6",
     fontSize: 18,
     fontWeight: "900",
+  },
+  buttonTextCompact: {
+    fontSize: 16,
   },
   ghostText: {
     color: theme.dark,

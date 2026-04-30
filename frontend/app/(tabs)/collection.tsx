@@ -18,7 +18,9 @@ export default function CollectionScreen() {
   useEffect(() => {
     if (routeCategory) {
       setSelectedCategory(normalizeCategory(String(routeCategory)));
+      return;
     }
+    setSelectedCategory("Alle");
   }, [routeCategory]);
 
   const grouped = useMemo(() => {
@@ -57,7 +59,7 @@ export default function CollectionScreen() {
   }, [grouped, search, selectedCategory]);
 
   return (
-    <Screen title="MIN DYREBOG" subtitle="Her bor alle de dyr, du selv har fundet.">
+    <Screen title="Min dyrebog" subtitle="Her bor alle de dyr, du selv har fundet.">
       <TextInput
         onChangeText={setSearch}
         placeholder="Søg efter art"

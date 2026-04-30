@@ -19,7 +19,11 @@ export default function MapScreen() {
     <Screen
       title="Kort"
       subtitle="Et roligt overblik over dine fund i Danmark. Sjældne arter vises kun omtrentligt."
-      bottomAction={<NatureButton label="Tilbage" onPress={() => router.back()} testID="map-back-button" variant="ghost" />}
+      bottomAction={
+        <View style={styles.footerWrap}>
+          <NatureButton label="Tilbage" onPress={() => router.back()} size="compact" testID="map-back-button" variant="ghost" />
+        </View>
+      }
     >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.filters}>
@@ -63,6 +67,9 @@ export default function MapScreen() {
 }
 
 const styles = StyleSheet.create({
+  footerWrap: {
+    alignItems: "center",
+  },
   filters: {
     flexDirection: "row",
     gap: 10,

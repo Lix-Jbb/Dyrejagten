@@ -198,10 +198,32 @@ frontend:
       - working: true
         agent: "testing"
         comment: "Badges-tidslinje og kategori-hop til filtreret Dyrebog blev valideret i preview."
+  - task: "UX-polering af hjem, dyrebog, artsdetalje og kort"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/index.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Gjorde hjemmets Dyrebog-kort tydeligere klikbart, normaliserede Dyrebog-titlen, gjorde sticky footers mere kompakte på map/species og flyttede artsdetaljens kort-genvej væk fra footer."
+  - task: "Dyrebog-filter nulstilles korrekt"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/collection.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Rettet bug hvor Dyrebog beholdt gammel kategori ved navigation uden category-param. Selvtestet ved skift fra filtreret route tilbage til almindelig Dyrebog."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: true
 test_plan:
   current_focus:
@@ -209,6 +231,8 @@ test_plan:
     - "Artsdetalje, kort og stedredigering"
     - "Kortskærm og synlige markører"
     - "Normaliser kategorier og bevar filtre"
+    - "UX-polering af hjem, dyrebog, artsdetalje og kort"
+    - "Dyrebog-filter nulstilles korrekt"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -219,3 +243,5 @@ agent_communication:
     message: "Efter iteration_4 blev stedredigering rettet, så eksisterende koordinater bevares ved upræcis geokodning. Tabs bruger nu custom tab-knapper, og preview viser kun én `tab-badges` node. Resultatskærmens komplette upload->analyse->popup flow er stadig ikke automatiseret i web preview, men komponenterne er implementeret." 
   - agent: "main"
     message: "Bruger rapporterede hook-fejl i preview. Den er rettet i /app/frontend/app/result.tsx, og /result åbner nu uden runtime-fejlen i preview." 
+  - agent: "main"
+    message: "Ny review-runde: hjem, dyrebog, artsdetalje og kort er poleret visuelt. Dyrebog nulstiller nu korrekt fra filtreret route tilbage til Alle. Preview-screenshots er taget efter ændringerne." 

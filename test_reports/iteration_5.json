@@ -1,0 +1,76 @@
+{
+  "summary": "Frontend-only mobile-web regression completed on public preview. UX polish for home card clickability, Dyrebog title consistency, compact sticky back buttons, species/map rendering, and camera/album tap safety mostly pass. A high-priority regression remains: Dyrebog filter does not reset to Alle when returning via tab navigation from a filtered route.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Dyrebog filter reset",
+        "issue": "After opening collection from badge category progress (e.g. /collection?category=Insekter), switching tabs away and back keeps category query and selected filter instead of resetting to Alle.",
+        "testID": "tab-book",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Badges -> category progress -> collection -> tab navigation back to collection",
+        "issue": "Route query parameter `category` persists on tab return, so state reset logic in collection is never triggered.",
+        "affected_testIDs": [
+          "score-category-*",
+          "tab-home",
+          "tab-book",
+          "pill-alle"
+        ]
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "Map and species screens",
+        "issues": [
+          "Compact sticky back button (48px) is improved, but still overlays bottom map content area by design; verify this is acceptable for final UX."
+        ]
+      }
+    ],
+    "react_native_issues": [
+      {
+        "component": "Web runtime console",
+        "issue": "Deprecation warnings observed repeatedly: `shadow* style props are deprecated` and `props.pointerEvents is deprecated` in Expo web preview."
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/tests/seed_ui_data.py",
+    "/app/test_reports/artifacts/iteration5_preview_smoke_mobile.jpeg",
+    "/app/test_reports/artifacts/iteration5_regression_mobile.jpeg",
+    "/app/test_reports/artifacts/iteration5_seeded_reload_check.jpeg",
+    "/app/test_reports/artifacts/iteration5_species_map_collection.jpeg",
+    "/app/test_reports/artifacts/iteration5_species_map_button_scrolled.jpeg",
+    "/app/test_reports/artifacts/iteration5_filter_reset_flow.jpeg",
+    "/app/test_reports/artifacts/iteration5_camera_album_flow.jpeg"
+  ],
+  "action_items": [
+    "Fix tab-book navigation so returning to Dyrebog from filtered routes navigates to plain collection (without category query) or explicitly resets selectedCategory to Alle.",
+    "Re-validate filter reset through the exact user path: score category tap -> tab switch -> tab-book.",
+    "Optionally reduce overlap risk of sticky back button over map card bottom content.",
+    "Add missing testID values for remaining key interactive controls (e.g., home profile button, hero camera circle) to improve automation robustness."
+  ],
+  "critical_code_review_comments": [
+    "collection.tsx reset logic relies on missing routeCategory; however tab navigation currently preserves category query, preventing reset path from running.",
+    "frontend/lib/api.ts uses EXPO_PUBLIC_BACKEND_URL contract while platform guideline expects EXPO_BACKEND_URL naming consistency.",
+    "Not all interactive elements expose explicit testID, despite project testing policy requiring testID for all key interactions."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_5.json"
+  ],
+  "success_rate": {
+    "backend": "NA (frontend-only scope)",
+    "frontend": "85%"
+  },
+  "seed_data_creation": "Reused and executed /app/tests/seed_ui_data.py against public endpoint to create deterministic user `natur-e2e-seed-001` for species/map/filter regression.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Use localStorage key `naturfinder-user-id = natur-e2e-seed-001` before navigating to collection/species/map flows. For reproducing the failing reset: open /(tabs)/score, tap a score-category progress row, then switch tabs and return via tab-book; URL remains /collection?category=... and Alle is not restored.",
+  "rca_of_issue": "RCA: Filter reset implementation in collection.tsx depends on routeCategory being absent. In the failing path, tab navigation returns to the already-parameterized route (`/collection?category=...`), so the effect keeps selectedCategory set to filtered value and never falls back to Alle. Mitigation: override tab-book press behavior to navigate to clean /(tabs)/collection route or clear query params on tab re-entry."
+}

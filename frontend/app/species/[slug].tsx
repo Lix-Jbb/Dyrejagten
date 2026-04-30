@@ -141,10 +141,11 @@ export default function SpeciesScreen() {
     <Screen
       title={speciesPreview.danishName}
       subtitle="Dit dyrekort med billeder, korte fakta og steder, hvor du har fundet dyret."
+      titleStyle={styles.screenTitle}
+      subtitleStyle={styles.screenSubtitle}
       bottomAction={
-        <View style={styles.bottomActions}>
-          <NatureButton label="Se alle fund på kort" onPress={() => router.push("/map" as never)} testID="species-open-map-button" variant="secondary" />
-          <NatureButton label="Tilbage" onPress={() => router.replace("/(tabs)/collection" as never)} testID="species-back-button" variant="ghost" />
+        <View style={styles.footerWrap}>
+          <NatureButton label="Tilbage" onPress={() => router.replace("/(tabs)/collection" as never)} size="compact" testID="species-back-button" variant="ghost" />
         </View>
       }
       rightAction={
@@ -220,6 +221,7 @@ export default function SpeciesScreen() {
           value={placeInput}
         />
         <NatureButton label="Gem sted" loading={savingPlace} onPress={saveEditedPlace} testID="species-save-location-button" />
+        <NatureButton label="Se alle fund på kort" onPress={() => router.push("/map" as never)} size="compact" testID="species-open-map-button" variant="secondary" />
         {markers.length ? (
           <ScatterMap markers={markers} testID="species-location-map" />
         ) : (
@@ -277,8 +279,16 @@ const styles = StyleSheet.create({
     color: "#8b5a1f",
     fontWeight: "700",
   },
-  bottomActions: {
-    gap: 10,
+  footerWrap: {
+    alignItems: "center",
+  },
+  screenTitle: {
+    fontSize: 30,
+    lineHeight: 34,
+  },
+  screenSubtitle: {
+    fontSize: 16,
+    lineHeight: 22,
   },
   menuButton: {
     width: 30,
