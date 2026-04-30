@@ -209,21 +209,30 @@ frontend:
       - working: true
         agent: "main"
         comment: "Gjorde hjemmets Dyrebog-kort tydeligere klikbart, normaliserede Dyrebog-titlen, gjorde sticky footers mere kompakte på map/species og flyttede artsdetaljens kort-genvej væk fra footer."
+      - working: true
+        agent: "testing"
+        comment: "Frontend-regression bekræftede de fleste UX-poleringer i preview."
   - task: "Dyrebog-filter nulstilles korrekt"
     implemented: true
     working: true
     file: "/app/frontend/app/(tabs)/collection.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Rettet bug hvor Dyrebog beholdt gammel kategori ved navigation uden category-param. Selvtestet ved skift fra filtreret route tilbage til almindelig Dyrebog."
+      - working: false
+        agent: "testing"
+        comment: "Tab-navigation beholdt stadig category query fra badges-flow."
+      - working: true
+        agent: "main"
+        comment: "Tab-book overskriver nu altid til ren /(tabs)/collection-route. Selvtestet via præcis flow: badges -> kategori -> hjem -> dyrebog. URL ender nu uden query, og Alle er valgt."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: true
 test_plan:
   current_focus:
@@ -245,3 +254,5 @@ agent_communication:
     message: "Bruger rapporterede hook-fejl i preview. Den er rettet i /app/frontend/app/result.tsx, og /result åbner nu uden runtime-fejlen i preview." 
   - agent: "main"
     message: "Ny review-runde: hjem, dyrebog, artsdetalje og kort er poleret visuelt. Dyrebog nulstiller nu korrekt fra filtreret route tilbage til Alle. Preview-screenshots er taget efter ændringerne." 
+  - agent: "main"
+    message: "Iteration_5 high-priority bug er lukket. Tab-book navigerer nu altid til ren collection-route, og badges -> kategori -> tabs -> Dyrebog er selvtestet uden hængende filter-query." 

@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
     bottom: 18,
     left: 18,
     right: 18,
-    pointerEvents: "none",
     backgroundColor: "rgba(248,252,247,0.92)",
     borderRadius: 18,
     padding: 14,
     gap: 4,
+    pointerEvents: "none",
   },
   labelTitle: {
     fontSize: 20,

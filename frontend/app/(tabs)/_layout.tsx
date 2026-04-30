@@ -1,18 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import React from "react";
 import { Pressable } from "react-native";
 
 import { theme } from "../../components/Screen";
 
-function TabButton({ testID, ...props }: BottomTabBarButtonProps & { testID: string }) {
+function TabButton({ testID, onPressOverride, ...props }: BottomTabBarButtonProps & { testID: string; onPressOverride?: () => void }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={props.accessibilityState}
       onLongPress={props.onLongPress}
-      onPress={props.onPress}
+      onPress={onPressOverride ?? props.onPress}
       style={props.style}
       testID={testID}
     >
@@ -22,6 +22,8 @@ function TabButton({ testID, ...props }: BottomTabBarButtonProps & { testID: str
 }
 
 export default function TabLayout() {
+  const router = useRouter();
+
   return (
     <Tabs
       screenOptions={({ route }) => ({
@@ -54,7 +56,13 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="index" options={{ title: "Hjem", tabBarButton: (props) => <TabButton {...props} testID="tab-home" /> }} />
       <Tabs.Screen name="camera" options={{ href: null }} />
-      <Tabs.Screen name="collection" options={{ title: "Dyrebog", tabBarButton: (props) => <TabButton {...props} testID="tab-book" /> }} />
+      <Tabs.Screen
+        name="collection"
+        options={{
+          title: "Dyrebog",
+          tabBarButton: (props) => <TabButton {...props} onPressOverride={() => router.replace("/(tabs)/collection" as never)} testID="tab-book" />,
+        }}
+      />
       <Tabs.Screen name="score" options={{ title: "Badges", tabBarButton: (props) => <TabButton {...props} testID="tab-badges" /> }} />
       <Tabs.Screen name="map" options={{ title: "Kort", tabBarButton: (props) => <TabButton {...props} testID="tab-map" /> }} />
       <Tabs.Screen name="profile" options={{ href: null }} />
