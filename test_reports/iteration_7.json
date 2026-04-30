@@ -1,0 +1,60 @@
+{
+  "summary": "Backend + frontend map regression executed on public preview. Core map flow works: species map renders, all-findings map renders, zoom controls work, and marker click navigates to species route without web crash.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/app/backend/tests/test_api_flows.py",
+        "issue": "Part of existing suite skips when only EXPO_PUBLIC_BACKEND_URL is available because BASE_URL fixture checks EXPO_BACKEND_URL only."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "species -> 'Se alle fund på kort' -> /map",
+        "issue": "Navigation appears to work, but Playwright visibility wait was flaky because selector [data-testid=all-findings-map] resolved to multiple nodes during transition.",
+        "affected_testIDs": [
+          "species-open-map-button",
+          "all-findings-map"
+        ]
+      }
+    ],
+    "design_issues": [],
+    "react_native_issues": [
+      {
+        "component": "Expo web runtime",
+        "issue": "Console warnings observed: 'props.pointerEvents is deprecated' and '\"shadow*\" style props are deprecated'."
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_dyrejagten_regression.py",
+    "/app/backend/tests/test_api_flows.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/artifacts/iteration7_map_flow_failure.jpeg",
+    "/app/test_reports/artifacts/iteration7_map_flow_failure_retry.jpeg",
+    "/app/test_reports/artifacts/iteration7_map_flow_failure_final.jpeg"
+  ],
+  "action_items": [
+    "Main agent: deduplicate/strengthen map testIDs on /map so automation can target a unique visible all-findings-map node during route transitions.",
+    "Main agent: align backend test BASE_URL resolution to support EXPO_PUBLIC_BACKEND_URL fallback consistently."
+  ],
+  "critical_code_review_comments": [
+    "ScatterMapLeaflet markers do not expose dedicated testID hooks on web, which makes stable marker-level automation fragile.",
+    "Several interactive onboarding buttons still lack explicit testID, reducing deterministic mobile-web E2E coverage."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_7.json"
+  ],
+  "success_rate": {
+    "backend": "100% (executed: 3/3 passed in test_dyrejagten_regression; additional map tests in test_api_flows skipped due env var expectation)",
+    "frontend": "85%"
+  },
+  "seed_data_creation": "Created 2 test findings via /api/findings for active web user natur-1777537700379-bz7jhj to validate map markers and route navigation.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Map behavior is functionally validated (render, zoom, marker->species route). Remaining issue is selector stability on return to /map due multiple matching nodes for all-findings-map during transitions.",
+  "rca_of_issue": "Observed flaky UI assertion was tooling-level, not functional break: after tapping 'Se alle fund på kort', URL and rendered map indicate navigation success, but Playwright visibility wait on [data-testid=all-findings-map] timed out because multiple matching elements existed and first resolved node was not visible."
+}

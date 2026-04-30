@@ -263,10 +263,27 @@ frontend:
       - working: true
         agent: "main"
         comment: "Rettet så reverse geocoding nu er pakket ind i try/catch. Fundet bliver stadig gemt, selv hvis geokodning fejler, og manuel sted-fallback bevares. Typecheck bestået."
+  - task: "Interaktive kort på dyreprofil og alle fund"
+    implemented: true
+    working: true
+    file: "/app/frontend/components/ScatterMap.tsx"
+    stuck_count: 2
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Første forsøg med react-native-maps i fælles komponent crashede web-preview, fordi biblioteket er native-only på web."
+      - working: false
+        agent: "main"
+        comment: "Andet forsøg med direkte react-leaflet i ScatterMap.web.tsx crashede Expo static web med 'window is not defined' under SSR-evaluering."
+      - working: true
+        agent: "main"
+        comment: "Løst med platformsspecifikke kort: native bruger react-native-maps, web bruger en client-only Leaflet-loader. Backend returnerer nu speciesSlug på markører, og web-preview bekræfter zoom, synlige markører og klik fra alle-fund-kort til dyreprofilen."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 6
+  test_sequence: 7
   run_ui: true
 test_plan:
   current_focus:
@@ -278,6 +295,7 @@ test_plan:
     - "Dyrebog-filter nulstilles korrekt"
     - "Gem-fund går direkte til artsdetalje"
     - "Lokation sættes automatisk ved gem"
+    - "Interaktive kort på dyreprofil og alle fund"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -298,3 +316,5 @@ agent_communication:
     message: "Efter iteration_6 er geocode-path hærdet: reverseGeocodeAsync kan ikke længere blokere gem-flowet. Direkte navigation efter gem er implementeret, men komplet E2E-upload/save-flow kunne ikke automatiseres i web-preview pga. Expo image picker-begrænsning." 
   - agent: "main"
     message: "Bruger rapporterede stadig fallback-beskeden på resultatskærmen. Root cause var en race-condition, hvor context-state blev nulstillet før route-skift. Det er nu rettet med clearCurrentFlow() efter router.replace til artsdetaljen." 
+  - agent: "main"
+    message: "Nyt kortarbejde: dyreprofilen viser nu et zoom-bart kort for det dyrs fund, 'Se alle fund på kort' åbner et samlet kort, og markører sender videre til korrekt dyreprofil via speciesSlug. Web-preview bruger nu en client-only Leaflet-loader for at undgå native/SSR-crash." 
