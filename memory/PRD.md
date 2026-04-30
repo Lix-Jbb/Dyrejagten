@@ -58,6 +58,7 @@ Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller v
 - Badges-skærm justeret med tydelig tidslinje og stabilt kategori-hop til filtreret Dyrebog
 - Kortmarkører gjort tydeligere og beskyttet mod at forsvinde ved upræcise stednavne
 - UX-review gennemført og flere UI-poleringer lagt ind: mere tydeligt klikbart Dyrebog-kort på hjem, mere konsistent titel i Dyrebog, mere læsbar artsdetalje-header og ren Dyrebog-tab-navigation uden hængende kategorifiltre
+- Gem-flow ændret: "Gem i min dyrebog" går nu direkte til artsdetaljen for det nyoprettede fund, og appen forsøger automatisk at sætte lokation via geo med manuel sted-fallback på artsdetaljen
 
 ## Prioritized Backlog
 ### P0

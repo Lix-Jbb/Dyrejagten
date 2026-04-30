@@ -166,6 +166,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const permission = await Location.requestForegroundPermissionsAsync();
         if (permission.status === "granted") {
           let position = null;
+          let places: Location.LocationGeocodedAddress[] = [];
           try {
             position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
           } catch {
@@ -173,7 +174,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
 
           if (position) {
-            const places = await Location.reverseGeocodeAsync(position.coords);
+            try {
+              places = await Location.reverseGeocodeAsync(position.coords);
+            } catch {
+              places = [];
+            }
             locationPayload = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
