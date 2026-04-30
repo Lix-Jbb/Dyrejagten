@@ -60,6 +60,7 @@ Native mobilapp til iOS og Android for danske brugere, hvor man kan tage eller v
 - UX-review gennemført og flere UI-poleringer lagt ind: mere tydeligt klikbart Dyrebog-kort på hjem, mere konsistent titel i Dyrebog, mere læsbar artsdetalje-header og ren Dyrebog-tab-navigation uden hængende kategorifiltre
 - Gem-flow ændret: "Gem i min dyrebog" går nu direkte til artsdetaljen for det nyoprettede fund, og appen forsøger automatisk at sætte lokation via geo med manuel sted-fallback på artsdetaljen
 - Race-condition i gem-flow lukket: resultatskærmens fallback vises ikke længere under redirect, fordi capture/analyse-state først ryddes efter route-skift til artsdetaljen
+- Kortoplevelsen er nu interaktiv: dyreprofilen viser zoom-bart kort for det dyrs fund, samlet kort viser alle fund, og klik på en markør åbner korrekt dyreprofil. Native bruger react-native-maps, mens web-preview bruger en client-only Leaflet-løsning
 
 ## Prioritized Backlog
 ### P0

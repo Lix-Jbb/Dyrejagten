@@ -66,7 +66,7 @@ export function ScatterMapLeaflet({
 
   return (
     <View style={styles.wrap} testID={testID}>
-      <View style={styles.mapFrame}>
+      <View style={styles.mapFrame} testID={testID ? `${testID}-interactive` : undefined}>
         <WebMapContainer center={[DENMARK_CENTER.latitude, DENMARK_CENTER.longitude]} style={webMapStyle} zoom={7} zoomControl>
           <WebTileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

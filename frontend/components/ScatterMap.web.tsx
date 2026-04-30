@@ -36,7 +36,7 @@ export function ScatterMap({ markers, testID, onMarkerPress }: ScatterMapProps) 
 
   if (!LoadedMap) {
     return (
-      <View style={styles.wrap} testID={testID}>
+      <View style={styles.wrap} testID={testID ? `${testID}-loading` : undefined}>
         <View style={styles.loadingCard}>
           <ActivityIndicator color={theme.primary} size="large" />
           <Text style={styles.loadingTitle}>Åbner kortet...</Text>

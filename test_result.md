@@ -269,7 +269,7 @@ frontend:
     file: "/app/frontend/components/ScatterMap.tsx"
     stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
@@ -280,10 +280,16 @@ frontend:
       - working: true
         agent: "main"
         comment: "Løst med platformsspecifikke kort: native bruger react-native-maps, web bruger en client-only Leaflet-loader. Backend returnerer nu speciesSlug på markører, og web-preview bekræfter zoom, synlige markører og klik fra alle-fund-kort til dyreprofilen."
+      - working: true
+        agent: "testing"
+        comment: "Regressionstest bestod for map-flow: /map loader uden crash, zoom virker, markørklik åbner korrekt species-route, og species-kortet renderer."
+      - working: true
+        agent: "main"
+        comment: "Gjorde web-selectoren stabil med unikt testID på det interaktive kortlag. Selvtestet: all-findings-map-interactive count = 1."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 7
+  test_sequence: 8
   run_ui: true
 test_plan:
   current_focus:
