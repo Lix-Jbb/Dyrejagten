@@ -163,16 +163,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       try {
         let locationPayload: { latitude?: number; longitude?: number; municipality?: string } = {};
-        if (profile?.allowLocation) {
-          const permission = await Location.requestForegroundPermissionsAsync();
-          if (permission.status === "granted") {
-            const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const permission = await Location.requestForegroundPermissionsAsync();
+        if (permission.status === "granted") {
+          let position = null;
+          try {
+            position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          } catch {
+            position = await Location.getLastKnownPositionAsync();
+          }
+
+          if (position) {
             const places = await Location.reverseGeocodeAsync(position.coords);
             locationPayload = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
               municipality:
-                places[0]?.city || places[0]?.subregion || places[0]?.region || undefined,
+                places[0]?.city || places[0]?.district || places[0]?.subregion || places[0]?.region || undefined,
             };
           }
         }

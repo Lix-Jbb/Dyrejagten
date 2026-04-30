@@ -2,19 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, Modal, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { GlassCard } from "../components/Cards";
 import { NatureButton, Screen, theme } from "../components/Screen";
 import { useApp } from "../context/AppContext";
 import { slugifyLatinName } from "../lib/api";
-import { Finding } from "../lib/types";
 
 export default function ResultScreen() {
   const router = useRouter();
   const { busy, currentAnalysis, currentCapture, loadSpecies, saveCurrentFinding } = useApp();
   const [manualName, setManualName] = useState("");
-  const [savedFinding, setSavedFinding] = useState<Finding | null>(null);
 
   const suggestion = currentAnalysis?.primarySuggestion;
   const trimmedManualName = manualName.trim();
@@ -26,7 +24,6 @@ export default function ResultScreen() {
 
   useEffect(() => {
     setManualName("");
-    setSavedFinding(null);
   }, [currentCapture?.capturedAt, suggestion?.latinName]);
 
   if (!currentAnalysis || !currentCapture || !suggestion) {
@@ -55,25 +52,12 @@ export default function ResultScreen() {
         customDanishName: trimmedManualName || undefined,
         customLatinName: trimmedManualName || undefined,
       });
-      setSavedFinding(finding);
+      const slug = slugifyLatinName(finding.latinName);
+      await loadSpecies(slug);
+      router.replace(`/species/${slug}` as never);
     } catch (error) {
       Alert.alert("Ups", error instanceof Error ? error.message : "Prøv igen om lidt.");
     }
-  };
-
-  const openSavedAnimal = async () => {
-    if (!savedFinding) {
-      return;
-    }
-    const slug = slugifyLatinName(savedFinding.latinName);
-    await loadSpecies(slug);
-    setSavedFinding(null);
-    router.replace(`/species/${slug}` as never);
-  };
-
-  const closeSuccessModal = () => {
-    setSavedFinding(null);
-    router.replace("/(tabs)" as never);
   };
 
   if (isUnknown) {
@@ -120,7 +104,7 @@ export default function ResultScreen() {
         <Text style={styles.body}>{certaintyLabel}</Text>
         <View style={styles.manualCard} testID="result-manual-name-card">
           <Text style={styles.manualTitle}>Er navnet forkert?</Text>
-          <Text style={styles.manualText}>Skriv selv dyrets navn her, så gemmer vi det sådan.</Text>
+          <Text style={styles.manualText}>Skriv selv dyrets navn her. Når du gemmer, går vi direkte ind på "Se dyret".</Text>
           <TextInput
             onChangeText={setManualName}
             placeholder="Skriv dyrets navn"
@@ -135,22 +119,6 @@ export default function ResultScreen() {
         </View>
         {currentAnalysis.shouldAskForNewPhoto ? <Text style={styles.warning}>{currentAnalysis.retryHint}</Text> : null}
       </GlassCard>
-
-      <Modal animationType="fade" transparent visible={Boolean(savedFinding)}>
-        <View style={styles.modalBackdrop} testID="result-success-modal">
-          <View style={styles.successCard}>
-            <View style={styles.successIcon}>
-              <Ionicons color="#fffdf6" name="checkmark" size={26} />
-            </View>
-            <Text style={styles.successTitle} testID="result-success-title">Dyret er gemt!</Text>
-            <Text style={styles.successText} testID="result-success-text">
-              {savedFinding?.danishName ?? suggestion.danishName} bor nu i din dyrebog.
-            </Text>
-            <NatureButton label="Se dyret" onPress={openSavedAnimal} testID="result-success-open-button" />
-            <NatureButton label="Find et nyt dyr" onPress={closeSuccessModal} testID="result-success-home-button" variant="ghost" />
-          </View>
-        </View>
-      </Modal>
     </Screen>
   );
 }
@@ -247,44 +215,5 @@ const styles = StyleSheet.create({
   },
   bottomActions: {
     gap: 10,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(12, 37, 21, 0.26)",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 18,
-  },
-  successCard: {
-    width: "100%",
-    maxWidth: 380,
-    borderRadius: 30,
-    padding: 22,
-    gap: 14,
-    backgroundColor: "#dff3df",
-    borderWidth: 3,
-    borderColor: theme.dark,
-    alignItems: "center",
-  },
-  successIcon: {
-    width: 58,
-    height: 58,
-    borderRadius: 999,
-    backgroundColor: theme.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  successTitle: {
-    fontSize: 28,
-    fontWeight: "900",
-    color: theme.dark,
-    textAlign: "center",
-  },
-  successText: {
-    fontSize: 17,
-    lineHeight: 24,
-    color: theme.dark,
-    fontWeight: "700",
-    textAlign: "center",
   },
 });

@@ -211,7 +211,7 @@ export default function SpeciesScreen() {
       <GlassCard>
         <SectionHeading title="Her fandt jeg dyret" />
         <Text style={styles.info}>By / område: {activeFinding?.municipality || "Du har ikke valgt et sted endnu."}</Text>
-        <Text style={styles.helper}>Hvis du valgte billedet senere, kan du rette stedet her.</Text>
+        <Text style={styles.helper}>Vi prøver først at finde stedet automatisk. Hvis det ikke lykkes, kan du selv skrive det her.</Text>
         <TextInput
           onChangeText={setPlaceInput}
           placeholder="Skriv sted eller by"

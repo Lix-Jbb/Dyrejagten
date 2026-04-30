@@ -229,10 +229,32 @@ frontend:
       - working: true
         agent: "main"
         comment: "Tab-book overskriver nu altid til ren /(tabs)/collection-route. Selvtestet via præcis flow: badges -> kategori -> hjem -> dyrebog. URL ender nu uden query, og Alle er valgt."
+  - task: "Gem-fund går direkte til artsdetalje"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/result.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Resultatskærmen springer nu succes-popup over og navigerer direkte til artsdetaljen efter gem. Preview af /result uden aktiv analyse crasher ikke, men komplet save-flow skal stadig UI-testes."
+  - task: "Lokation sættes automatisk ved gem"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/context/AppContext.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "saveCurrentFinding forsøger nu altid geo-permission og reverse geocoding ved gem. Hvis det ikke lykkes, kan brugeren stadig skrive sted manuelt på artsdetaljen. Kræver UI-test af rigtig save-situation."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 4
+  test_sequence: 5
   run_ui: true
 test_plan:
   current_focus:
@@ -242,6 +264,8 @@ test_plan:
     - "Normaliser kategorier og bevar filtre"
     - "UX-polering af hjem, dyrebog, artsdetalje og kort"
     - "Dyrebog-filter nulstilles korrekt"
+    - "Gem-fund går direkte til artsdetalje"
+    - "Lokation sættes automatisk ved gem"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -256,3 +280,5 @@ agent_communication:
     message: "Ny review-runde: hjem, dyrebog, artsdetalje og kort er poleret visuelt. Dyrebog nulstiller nu korrekt fra filtreret route tilbage til Alle. Preview-screenshots er taget efter ændringerne." 
   - agent: "main"
     message: "Iteration_5 high-priority bug er lukket. Tab-book navigerer nu altid til ren collection-route, og badges -> kategori -> tabs -> Dyrebog er selvtestet uden hængende filter-query." 
+  - agent: "main"
+    message: "Ny ændring efter brugerfeedback: 'Gem i min dyrebog' skal nu gå direkte til artsdetaljen. saveCurrentFinding prøver nu også automatisk geolokation ved gem, så 'Her fandt jeg dyret' kan udfyldes uden manuel indtastning, men der er stadig manuel fallback på artsdetaljen." 
